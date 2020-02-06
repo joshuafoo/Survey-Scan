@@ -9,7 +9,9 @@ from kivy.uix.gridlayout import GridLayout
 Window.size = (1000, 800)
 #Window.clearcolor = (1, 1, 1, 1)
 class Item(GridLayout):
-    def spinnerchange(i):print(i)
+    def spinnerchange(a,b):
+        pass
+#        print(a,b)
     pass
 kv = """
 <StockList>: # RecycleView
@@ -57,9 +59,9 @@ class StockList(RecycleView):
       add['info'] = 'Onn kit ' + str(i)
       add['name'] = 'item ' + str(i)
       add['default'] = 'item ' + str(i)
-      add['row_count'] = i
+      add['row_count'] = str(i)
       data.append(add)
-    print(data)
+#    print(datxa)
     return data
 
 class TestApp(App):
