@@ -6,63 +6,99 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.stacklayout import StackLayout
 Window.size = (1000, 800)
 #Window.clearcolor = (1, 1, 1, 1)
-class Item(GridLayout):
-    def spinnerchange(a,b):
-        pass
-#        print(a,b)
-    pass
+class Item(GridLayout):pass
 kv = """
+
 <StockList>: # RecycleView
     viewclass: 'Item'
     data: self.getData()
     RecycleBoxLayout:
         orientation: 'vertical'
-        default_size: None, dp(300)
+        default_size: None, dp(150)
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
+        scroll_type: ['bars']
+        bar_width: 25
 
 <Item>:
+
     name: 'init value'
-    info: 'init value'
-    default: 'init value'
     row_count: 'init value'
+    b1_state: 'init value'
+    b2_state: 'init value'
+    b3_state: 'init value'
+    b4_state: 'init value'
+    
     cols: 1
     Label:
         text: root.name
-    
-    Spinner:
-    
-        size_hint: 0.8, 0.5
-        size: 100, 44
-        pos_hint: {'center': (.5, .5)}
-        text: root.default
-        values: 'Multiple-Choice', 'Strongly Agree/Disagree', 'Scale Rating (1 to 10)', 'Open Ended'
-        on_text:root.spinnerchange(root.row_count)
+    BoxLayout:
+        size_hint_y: None
+        height: "40dp"
+        ToggleButton:
+            text:"Multiple-Choice"
+            id: b1
+            group: root.row_count
+            #state:root.b1_state
+            on_release:app.StockList.adjust_data(root.row_count)
+            allow_no_selection:False
 
+        ToggleButton:
+            text:"Strongly Agree/Disagree"
+            id: b2
+            group: root.row_count
+            #state:root.b2_state
+            on_release:app.StockList.adjust_data(root.row_count)
+            allow_no_selection:False
+
+        ToggleButton:
+            text:"Scale Rating (1 to 10)"
+            id: b3
+            group: root.row_count
+            #state:root.b3_state
+            on_release: app.StockList.adjust_data(root.row_count)
+            allow_no_selection:False
+        ToggleButton:
+            text:"Open Ended"
+            id: b4
+            group: root.row_count
+            #state:root.b4_state
+            on_release:app.StockList.adjust_data(root.row_count)
+            allow_no_selection:False
+        
 BoxLayout:
     StockList:
 
 """
 
-# Builder.load_file('gui/stockList.kv')
 
 
 class StockList(RecycleView):
-
-  def getData(self):
-    data = []
-    for i in range(0,10):
-      add = {}
-      add['info'] = 'Onn kit ' + str(i)
-      add['name'] = 'item ' + str(i)
-      add['default'] = 'item ' + str(i)
-      add['row_count'] = str(i)
-      data.append(add)
-#    print(datxa)
-    return data
+    toggle_states = [["normal" for i in range(4)] for i in range(10)]
+    def getData(self):
+        data = []
+        for i in range(0,10):
+            add = {}
+            add['name'] = 'item ' + str(i)
+            add['b1_state'] = self.toggle_states[i][0]
+            add['b2_state'] = self.toggle_states[i][1]
+            add['b3_state'] = self.toggle_states[i][2]
+            add['b4_state'] = self.toggle_states[i][3]
+            add['row_count'] = str(i)
+            data.append(add)
+        print(data)
+        return data
+    def adjust_data(self, rvRow,button_name):
+        for d in self.data:
+            if d['row_count'] == rvRow:
+                    if(d[button_name] == "normal"):d[button_name] = "down"
+                    elif(d[button_name] == "down"):d[button_name] = "normal"
+                    break
 
 class TestApp(App):
   def build(self):
