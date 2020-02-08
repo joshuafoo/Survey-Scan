@@ -8,9 +8,23 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
+from kivy.properties import StringProperty
 Window.size = (1000, 800)
 #Window.clearcolor = (1, 1, 1, 1)
-class Item(GridLayout):pass
+toggle_states = [["normal" for i in range(4)] for i in range(10)]
+class Item(GridLayout):
+    def adjust_data(self, rvRow,button_index,state,refff):
+        #print(rvRow,button_index,state)
+        toggle_states[int(rvRow)] = ["normal" for i in range(4)]
+        toggle_states[int(rvRow)][int(button_index)] = str(state)
+        root = App.get_running_app().root
+        root.ids.rv.data = root.ids.rv.getData()
+        refff.b1state = refff.ids.b1.state
+        refff.b2state = refff.ids.b2.state
+        refff.b3state = refff.ids.b3.state
+        refff.b4state = refff.ids.b4.state
+        #root.ids.rv.refresh_from_data()
+        pass
 kv = """
 
 <StockList>: # RecycleView
@@ -29,10 +43,10 @@ kv = """
 
     name: 'init value'
     row_count: 'init value'
-    b1_state: 'init value'
-    b2_state: 'init value'
-    b3_state: 'init value'
-    b4_state: 'init value'
+    b1state: 'normal'
+    b2state: 'normal'
+    b3state: 'normal'
+    b4state: 'normal'
     
     cols: 1
     Label:
@@ -44,61 +58,58 @@ kv = """
             text:"Multiple-Choice"
             id: b1
             group: root.row_count
-            #state:root.b1_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            state: root.b1state
+            on_release:root.adjust_data(root.row_count,0,self.state,root)
             allow_no_selection:False
 
         ToggleButton:
             text:"Strongly Agree/Disagree"
             id: b2
             group: root.row_count
-            #state:root.b2_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            state:root.b2state
+            on_release:root.adjust_data(root.row_count,1,self.state,root)
             allow_no_selection:False
 
         ToggleButton:
             text:"Scale Rating (1 to 10)"
             id: b3
             group: root.row_count
-            #state:root.b3_state
-            on_release: app.StockList.adjust_data(root.row_count)
+            state:root.b3state
+            on_release:root.adjust_data(root.row_count,2,self.state,root)
             allow_no_selection:False
         ToggleButton:
             text:"Open Ended"
             id: b4
             group: root.row_count
-            #state:root.b4_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            state:root.b4state
+            on_release:root.adjust_data(root.row_count,3,self.state,root)
             allow_no_selection:False
         
 BoxLayout:
     StockList:
+        id:rv
 
 """
 
 
 
 class StockList(RecycleView):
-    toggle_states = [["normal" for i in range(4)] for i in range(10)]
+    
     def getData(self):
         data = []
         for i in range(0,10):
             add = {}
             add['name'] = 'item ' + str(i)
-            add['b1_state'] = self.toggle_states[i][0]
-            add['b2_state'] = self.toggle_states[i][1]
-            add['b3_state'] = self.toggle_states[i][2]
-            add['b4_state'] = self.toggle_states[i][3]
+            add['b1state'] = toggle_states[i][0]
+            add['b2state'] = toggle_states[i][1]
+            add['b3state'] = toggle_states[i][2]
+            add['b4state'] = toggle_states[i][3]
             add['row_count'] = str(i)
             data.append(add)
-        print(data)
+        #print()
+        #print(data)
         return data
-    def adjust_data(self, rvRow,button_name):
-        for d in self.data:
-            if d['row_count'] == rvRow:
-                    if(d[button_name] == "normal"):d[button_name] = "down"
-                    elif(d[button_name] == "down"):d[button_name] = "normal"
-                    break
+
 
 class TestApp(App):
   def build(self):
@@ -107,3 +118,5 @@ class TestApp(App):
 
 if __name__ == '__main__':
   TestApp().run()
+
+
