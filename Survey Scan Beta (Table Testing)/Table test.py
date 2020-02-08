@@ -9,7 +9,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
 Window.size = (1000, 800)
-#Window.clearcolor = (1, 1, 1, 1)
+# Window.clearcolor = (1, 1, 1, 1)
 class Item(GridLayout):pass
 kv = """
 
@@ -45,7 +45,7 @@ kv = """
             id: b1
             group: root.row_count
             #state:root.b1_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            on_release: app.StockList.adjust_data(app.StockList,root.row_count,id)
             allow_no_selection:False
 
         ToggleButton:
@@ -53,7 +53,7 @@ kv = """
             id: b2
             group: root.row_count
             #state:root.b2_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            on_release: app.StockList.adjust_data(app.StockList,root.row_count,id)
             allow_no_selection:False
 
         ToggleButton:
@@ -61,14 +61,14 @@ kv = """
             id: b3
             group: root.row_count
             #state:root.b3_state
-            on_release: app.StockList.adjust_data(root.row_count)
+            on_release: app.StockList.adjust_data(app.StockList,root.row_count,id)
             allow_no_selection:False
         ToggleButton:
             text:"Open Ended"
             id: b4
             group: root.row_count
             #state:root.b4_state
-            on_release:app.StockList.adjust_data(root.row_count)
+            on_release: app.StockList.adjust_data(app.StockList,root.row_count,id)
             allow_no_selection:False
         
 BoxLayout:
@@ -76,33 +76,34 @@ BoxLayout:
 
 """
 
-
-
-class StockList(RecycleView):
-    toggle_states = [["normal" for i in range(4)] for i in range(10)]
-    def getData(self):
-        data = []
-        for i in range(0,10):
-            add = {}
-            add['name'] = 'item ' + str(i)
-            add['b1_state'] = self.toggle_states[i][0]
-            add['b2_state'] = self.toggle_states[i][1]
-            add['b3_state'] = self.toggle_states[i][2]
-            add['b4_state'] = self.toggle_states[i][3]
-            add['row_count'] = str(i)
-            data.append(add)
-        print(data)
-        return data
-    def adjust_data(self, rvRow,button_name):
-        for d in self.data:
-            if d['row_count'] == rvRow:
-                    if(d[button_name] == "normal"):d[button_name] = "down"
-                    elif(d[button_name] == "down"):d[button_name] = "normal"
-                    break
-
 class TestApp(App):
-  def build(self):
-    return Builder.load_string(kv)
+    class StockList(RecycleView):
+        toggle_states = [["normal" for i in range(4)] for i in range(10)]
+        data = []
+        def getData(self):
+            data = []
+            for i in range(0,10):
+                add = {}
+                add['name'] = 'item ' + str(i)
+                add['b1_state'] = self.toggle_states[i][0]
+                add['b2_state'] = self.toggle_states[i][1]
+                add['b3_state'] = self.toggle_states[i][2]
+                add['b4_state'] = self.toggle_states[i][3]
+                add['row_count'] = str(i)
+                data.append(add)
+            print(data)
+            return data
+        def adjust_data(self, rvRow,button_name):
+            for d in self.data:
+                if d['row_count'] == rvRow:
+                        if(d[button_name] == "normal"):d[button_name] = "down"; print("DOWN")
+                        elif(d[button_name] == "down"):d[button_name] = "normal"; print("UP")
+                        break
+            print(self.data)
+
+            
+    def build(self):
+        return Builder.load_string(kv)
 
 
 if __name__ == '__main__':
