@@ -8,6 +8,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 from kivy.core.window import Window
 from kivy.graphics import Color
 from kivy.uix.floatlayout import FloatLayout 
@@ -245,7 +246,7 @@ class Second(Screen):
         Window.size = (1000, 800)#set size of window after transtion to this screen
         
 
-class Thrid(Screen):
+class Third(Screen):
     def on_enter(self):
         Window.size = (1000, 800)#set size of window after transtion to this screen
     
@@ -259,7 +260,7 @@ class MyApp(App):
     #--------Add screens to Scene manager--------#     
     sm.add_widget(First(name ='first'))
     sm.add_widget(Second(name ='second'))
-    sm.add_widget(Thrid(name ='third'))
+    sm.add_widget(Third(name ='third'))
     sm.current = "first"#default first scene
     
     def build(self):
@@ -272,3 +273,4 @@ class Error(Exception):
 # run the App 
 if __name__ == "__main__":
     MyApp().run() 
+
