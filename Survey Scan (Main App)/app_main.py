@@ -2,7 +2,7 @@
 try:
     import kivy
 except ImportError:
-    raise ImportError("This script requires Kivy to be installed.")
+    raise ImportError("This application requires Kivy to be installed.")
 
 from kivy.app import App 
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
