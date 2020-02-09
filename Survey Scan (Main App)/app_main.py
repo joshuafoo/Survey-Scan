@@ -65,6 +65,7 @@ class First(Screen):
             
                 if(self.textinput.text != ""):
                     self.manager.current =  "second"
+                    self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
                 else:raise Error("Please enter a file name.")
                     
@@ -237,6 +238,7 @@ class StockList(RecycleView):
 
 class Second(Screen):
     def export(self):#export data button is clicked
+        print(toggle_states)
         self.manager.current =  "third"# transition to third scene
 
     def on_enter(self):
