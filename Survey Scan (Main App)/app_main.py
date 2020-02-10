@@ -130,6 +130,7 @@ class Second(Screen):
         self.manager.current =  "third"# transition to third scene
 
     def on_enter(self):
+        Window.top -= 30#Change position of window so it does not touch the bottom of the screen
         Window.size = (1000, 800)#set size of window after transtion to this screen
 
 
@@ -159,4 +160,8 @@ class Error(Exception):
     pass
 # run the App
 if __name__ == "__main__":
+<<<<<<< HEAD
     MyApp().run()
+=======
+    MyApp().run() 
+>>>>>>> fcfdce0158e1d9637943b0ee43b088d87a54ade0
