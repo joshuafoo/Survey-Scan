@@ -32,7 +32,7 @@ class First(Screen):
 
         #"Enter file name" label
         l = Label(
-            text='Enter File Name :',
+            text='Enter File Path:',
             font_size='15sp',pos_hint ={'center_y': .5, 'center_x': .2},
             size_hint = (.3, .25))
 
@@ -51,7 +51,7 @@ class First(Screen):
 
         #Textfield with 'File Name' placeholder
         self.textinput = TextInput(text = "",
-                                   hint_text='File Name',
+                                   hint_text='File Path',
                                    pos_hint ={'center_y': 0.489, 'center_x': .5},
                                    size_hint = (.3, .25),
                                    multiline=False)
