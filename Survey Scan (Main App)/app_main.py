@@ -38,7 +38,7 @@ class First(Screen):
 
         #Error label
         self.err = Label(
-            text='Error:Invalid file name',
+            text='Error: Invalid file Path',
             font_size='13sp',pos_hint ={'center_y': .2, 'center_x': .5},
             size_hint = (.3, .25),
             color=[1, .8, .8, 0])
@@ -68,7 +68,7 @@ class First(Screen):
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
-                else:raise Error("Please enter a file name.")
+                else:raise Error("Please enter a file path.")
 
             except Error as e:
                 self.err.text = str(e)
