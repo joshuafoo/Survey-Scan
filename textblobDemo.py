@@ -2,20 +2,16 @@ from textblob import TextBlob
 
 
 text = '''
-The titular threat of The Blob has always struck me as the ultimate movie
-monster: an insatiably hungry, amoeba-like mass able to penetrate
-virtually any safeguard, capable of--as a doomed doctor chillingly
-describes it--"assimilating flesh on contact.
-Snide comparisons to gelatin be damned, it's a concept with the most
-devastating of potential consequences, not unlike the grey goo scenario
-proposed by technological theorists fearful of
-artificial intelligence run rampant.
+The lesson was pretty bad. I did not like it. The instructor was boring, like a GridLayout. It was boring, uninteresting, stupid, horrible, but fun at the same time.
 '''
 
 blob = TextBlob(text)
-print(blob.tags)           # [('The', 'DT'), ('titular', 'JJ'),
-                    #  ('threat', 'NN'), ('of', 'IN'), ...]
+adjectives = []
+for item in blob.tags:
+    if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
+        adjectives.append(item[0])
 
+print(adjectives)
 blob.noun_phrases   # WordList(['titular threat', 'blob',
                     #            'ultimate movie monster',
                     #            'amoeba-like mass', ...])
