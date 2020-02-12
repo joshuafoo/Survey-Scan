@@ -67,7 +67,6 @@
 
 <Second>:
     name: 'second'
-    id : why
 
     BoxLayout:
         orientation:"vertical"
@@ -80,6 +79,7 @@
 
             RoundedButton:
                 size_hint:(0.8, None)
+                pos_hint: {'y': .25}
                 text:"Back"
                 on_press:root.manager.current =  "first"
 
@@ -87,12 +87,14 @@
 
             Label:
                 markup: True
+                pos_hint: {'y': .25}
                 text:"[size=45][b]Question Overview[/b]"
 
             FloatLayout:
 
             RoundedButton:
                 size_hint:(0.8, None)
+                pos_hint: {'y': .25}
                 text:"Export data"
                 on_press:root.export()
 
