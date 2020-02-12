@@ -2,10 +2,11 @@ from textblob import TextBlob
 
 
 text = '''
-The lesson was pretty bad. I did not like it. The instructor was boring, like a GridLayout. It was boring, uninteresting, stupid, horrible, but fun at the same time.
+The lesson was prety bad. I did not like it. The instructor was boring, like a GridLayout. It was boring, uninteresting, stupid, horrible, but fun at the same time.
 '''
 
 blob = TextBlob(text)
+blob = blob.correct() # EXPERIMENTAL
 adjectives = []
 for item in blob.tags:
     if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
