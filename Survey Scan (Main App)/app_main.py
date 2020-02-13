@@ -3,7 +3,6 @@ try:
     import kivy
     import pandas as pd
     import math
-    import textblob
 except ImportError:
     raise ImportError("Some Packages were not installed properly. Please install them and try again")
 
