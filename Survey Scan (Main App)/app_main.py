@@ -1,9 +1,13 @@
 #--------Import all required packages--------#
 try:
     import kivy
+    import pandas as pd
+    import math
+    import textblob
 except ImportError:
-    raise ImportError("This application requires Kivy to be installed.")
+    raise ImportError("Some Packages were not installed properly. Please install them and try again")
 
+from textblob import TextBlob
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
 from kivy.config import Config
@@ -19,123 +23,6 @@ from kivy.uix.popup import Popup
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.lang import Builder
-
-kv = """
-<StockList>: # RecycleView
-    viewclass: 'Item'
-    data: self.getData()
-    RecycleBoxLayout:
-        orientation: 'vertical'
-        default_size: None, dp(150)
-        default_size_hint: 1, None
-        size_hint_y: None
-        height: self.minimum_height
-        scroll_type: ['bars']
-        bar_width: 25
-<Item>:
-    cols: 1
-    name: 'init value'
-    row_count: 'init value'
-    b1state: 'normal'
-    b2state: 'normal'
-    b3state: 'normal'
-    b4state: 'normal'
-
-    Label:
-        markup: True
-        text: "[size=30]" + root.name
-
-    BoxLayout:
-        size_hint_y: None
-        size_hint_x: .8
-        height: "40dp"
-
-        FloatLayout:
-            size_hint: 0.1, 0.1
-
-        ToggleButton:
-            text:"Multiple-Choice"
-            id: b1
-            group: root.row_count
-            state: root.b1state
-            on_release:root.adjust_data(root.row_count,0,self.state,root)
-            allow_no_selection:False
-
-        ToggleButton:
-            text:"Strongly Agree/Disagree"
-            id: b2
-            group: root.row_count
-            state:root.b2state
-            on_release:root.adjust_data(root.row_count,1,self.state,root)
-            allow_no_selection:False
-
-        ToggleButton:
-            text:"Scale Rating (1 to 10)"
-            id: b3
-            group: root.row_count
-            state:root.b3state
-            on_release:root.adjust_data(root.row_count,2,self.state,root)
-            allow_no_selection:False
-
-        ToggleButton:
-            text:"Open Ended"
-            id: b4
-            group: root.row_count
-            state:root.b4state
-            on_release:root.adjust_data(root.row_count,3,self.state,root)
-            allow_no_selection:False
-
-        FloatLayout:
-            size_hint: 0.1, 0.1
-
-<Second>:
-    name: 'second'
-
-    BoxLayout:
-        orientation:"vertical"
-        size_hint:(1, 0.97)
-
-        BoxLayout:
-            size_hint:(0.95, None)
-            pos_hint: {'center_x': .5, 'center_y': .5}
-            orientation:"horizontal"
-
-            RoundedButton:
-                size_hint:(0.8, None)
-                pos_hint: {'y': .25}
-                text:"Back"
-                on_press:root.manager.current =  "first"
-
-            FloatLayout:#padding
-
-            Label:
-                markup: True
-                pos_hint: {'y': .25}
-                text:"[size=45][b]Question Overview[/b]"
-
-            FloatLayout:
-
-            RoundedButton:
-                size_hint:(0.8, None)
-                pos_hint: {'y': .25}
-                text:"Export data"
-                on_press:root.export()
-
-
-        StockList:
-            id:rv
-
-<RoundedButton@Button>:
-    background_color: 0,0,0,0  # the last zero is the critical on, make invisible
-    canvas.before:
-        Color:
-            rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [50,]
-
-"""
 
 class First(Screen):
     def on_enter(self):Window.size = (500, 100)
@@ -248,7 +135,7 @@ class Second(Screen):
 
     def on_enter(self):
         Window.top -= 30#Change position of window so it does not touch the bottom of the screen
-        Window.size = (1000, 800)#set size of window after transtion to this screen
+        Window.size = (1000, 700)#set size of window after transtion to this screen
 
 
 class Third(Screen):
@@ -259,8 +146,8 @@ class Third(Screen):
 # Scene manager class
 class MyApp(App):
 
-    Builder.load_string(kv) #load kv string
-    # Builder.load_file("main.kv") #load kv file
+    # Builder.load_string(kv) #load kv string
+    Builder.load_file("main.kv") #load kv file
     sm = ScreenManager(transition=NoTransition())#declare scenemanger with no transtion set as default
     #--------Add screens to Scene manager--------#
     sm.add_widget(First(name ='first'))
