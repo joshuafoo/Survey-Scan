@@ -29,7 +29,7 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.togglebutton import ToggleButton
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
-
+from kivy.uix.scrollview import ScrollView
 kv = """
 <Questionlist>: # RecycleView
     viewclass: 'Item2'
@@ -50,7 +50,8 @@ kv = """
         size_hint:(0.9, 0.9)
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         markup: True
-        text: "[size=30]       " + root.name
+        text: "[size=30]" + root.name
+        padding_x: 50
         text_size: self.size     
         halign: 'left'
         valign: 'center'
@@ -67,7 +68,6 @@ kv = """
 BoxLayout:
     orientation:"vertical"
     size_hint:(1, 0.97)
-
     BoxLayout:
         size_hint:(0.95, None)
         pos_hint: {'center_x': .5, 'center_y': .5}
@@ -93,10 +93,25 @@ BoxLayout:
             pos_hint: {'y': .25}
             text:"Save"
             on_press:#root.export()
+    TextInput:
+        size_hint:(0.7, 0.05)
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        hint_text:"Search bar"
+        multiline:False
+        on_text: print("Text in search bar changed this is the text :",self.text)
+        
 
 
     Questionlist:
         id:rv
+<ScrollableLabel>:
+    Label:
+        size_hint_y: None
+        height: self.texture_size[1]
+        text_size: self.width, None
+        text: root.text
+        font_size: 40
+
 
 <RoundedButton@Button>:
     background_color: 0,0,0,0  # the last zero is the critical on, make invisible
@@ -136,7 +151,12 @@ class Item2(FloatLayout):
         #--------Creates popup widget--------#
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
-        pops.title = name
+        
+        if(len(name)>105):#check if name is more than 2 lines
+            pops.title = name[:105] + "..."#Truncate name
+        else:
+            pops.title = name
+            
         pops.title_size = 40
 
         #--------Create ui elements--------#
@@ -150,12 +170,15 @@ class Item2(FloatLayout):
 
         #Toggle button events
         def change_type(name,foo):
+            #unloads previous tab and load new tab
+            plt.close()#close mathplot figure
             Fl.remove_widget(self.current_segement)
             self.current_segement = globals()[name.replace(" ", "_")]()
             Fl.add_widget(self.current_segement)
+            
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
-            print(name + " selected")
+            print(name + " selected")#debug
 
         #setup toggle buttons
         
@@ -194,6 +217,18 @@ class Item2(FloatLayout):
 class Anomalies(StackLayout):
     def __init__(self, **kwargs):
         super(Anomalies, self).__init__(**kwargs)
+        #--------Set constraints of view--------#        
+        self.orientation = "tb-lr"#left right top bottom
+        self.size_hint = (0.9, 0.8)
+        self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
+
+#--------create scrollable label--------#
+        long_text = """There is a lot of data anomalies.There is something wong."""
+        
+        l = ScrollableLabel(text=long_text)
+
+        #add scrollable label to self
+        self.add_widget(l)
         
         
 class Pie_Chart(BoxLayout):
@@ -262,20 +297,31 @@ class Bar_Chart(BoxLayout):
         
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
+class ScrollableLabel(ScrollView):
+    text = StringProperty('')
+    
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
-        self.orientation = "tb-lr"
-        self.size_hint = (0.9, 0.9)
-        self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}#left right top bottom
-        for i in range(7):
-            
-            l = Label(
-                text='Stats stuff ' + str(i),
-                font_size='15sp',
-                size_hint = (None,None))
-            
-            self.add_widget(l)
+#--------Set constraints of view--------#        
+        self.orientation = "tb-lr"#left right top bottom
+        self.size_hint = (0.9, 0.8)
+        self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
+
+#--------create scrollable label--------#
+        long_text = """Mean/Average: 100000
+Mode: 10000
+Median: 10000
+Standard Deviation: 100000000000
+Interquartile Range: 10000000000
+Upper Quartile: 10000000000
+Lower Quartile: 10000000000
+Total Responses: 1000000000000000000000000000000000000000"""
+        
+        l = ScrollableLabel(text=long_text)
+
+        #add scrollable label to self
+        self.add_widget(l)
         
     
 
@@ -292,4 +338,3 @@ class TestApp(App):
 
 if __name__ == '__main__':
   TestApp().run()
-
