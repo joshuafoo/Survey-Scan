@@ -1,28 +1,3 @@
-from functools import partial
-import matplotlib.pyplot as plt
-import numpy as np
-
-from kivy.app import App
-from kivy.lang import Builder
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.recycleview import RecycleView
-from kivy.properties import StringProperty
-from kivy.uix.button import Button
-from kivy.uix.popup import Popup
-from kivy.core.window import Window
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
-from kivy.config import Config
-Config.set('graphics', 'resizable', False)
-Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
-from kivy.core.window import Window
-from kivy.graphics import Color
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.button import Button
-from kivy.uix.textinput import TextInput
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.lang import Builder
 from kivy.uix.stacklayout import StackLayout
@@ -278,8 +253,8 @@ class Bar_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Bar_Chart, self).__init__(**kwargs)
 #--------Set constraints of view--------#
-        self.size_hint = (0.9, 0.9)
-        self.pos_hint ={'center_y': 0.45, 'center_x': 0.5}#left right top bottom
+        self.size_hint = (0.8, 0.8)
+        self.pos_hint ={'center_y': 0.503, 'center_x': 0.5}#left right top bottom
 
 #--------Create graph--------#
         
