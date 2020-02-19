@@ -47,8 +47,6 @@ for i in Attendance_Namelist["Index"]:
         attendance.append("")
 
 ### CHECKING REPEATS FOR SURVEY ###
-
-
 def get_repeats(survey):
     index_list = list(survey.index)
     repeats = []
