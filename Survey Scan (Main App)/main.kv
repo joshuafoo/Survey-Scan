@@ -132,18 +132,18 @@
         markup: True
         text: "[size=30]" + root.name
         padding_x: 50
-        text_size: self.size     
+        text_size: self.size
         halign: 'left'
         valign: 'center'
         on_release: root.fire_popup(root.name)
 
-#:import Window kivy.core.window    
+#:import Window kivy.core.window
 <MyPopup@Popup>:
-    auto_dismiss: 
+    auto_dismiss:
     pos_hint: {'center_x': .5, 'center_y': .5}
     size_hint: .8, .8
     title:"Question 1"
-            
+
 
 <Third>
     name:"third"
@@ -181,7 +181,7 @@
             hint_text:"Search bar"
             multiline:False
             on_text: print("Text in search bar changed this is the text :",self.text)
-            
+
 
 
         Questionlist:

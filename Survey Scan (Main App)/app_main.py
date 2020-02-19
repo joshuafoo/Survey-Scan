@@ -3,7 +3,6 @@ try:
     import kivy
     #import pandas as pd
     #import math
-
     import matplotlib.pyplot as plt
     import numpy as np
 except ImportError:
@@ -162,13 +161,13 @@ class Questionlist(RecycleView):
     number_of_elements = 10
     def getData(self):
         data=[]
-        
+
         for i in range(self.number_of_elements):
             add = {}
             add['name'] = 'Question ' + str(i)
             add['row_count'] = str(i)
             data.append(add)
-            
+
         return data
 class Item2(FloatLayout):
 
@@ -182,12 +181,12 @@ class Item2(FloatLayout):
         #--------Creates popup widget--------#
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
-        
+
         if(len(name)>105):#check if name is more than 2 lines
             pops.title = name[:105] + "..."#Truncate name
         else:
             pops.title = name
-            
+
         pops.title_size = 40
 
         #--------Create ui elements--------#
@@ -206,13 +205,13 @@ class Item2(FloatLayout):
             Fl.remove_widget(self.current_segement)
             self.current_segement = globals()[name.replace(" ", "_")]()
             Fl.add_widget(self.current_segement)
-            
+
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
             print(name + " selected")#debug
 
         #setup toggle buttons
-        
+
         toggle_arra = []
         for i in self.array:
             Tb = ToggleButton(text=i,
@@ -225,15 +224,15 @@ class Item2(FloatLayout):
             Bl.add_widget(Tb)
 
         toggle_arra[0].state = "down"#set first toggle button to be default selected
-        
-        
+
+
         #"Dismiss" button
         btn = Button(text ='Dismiss',
                      size_hint =(.2, .1),
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={'center_y': 0.05, 'center_x': .5},
                      on_press = lambda *args: pops.dismiss())
-        
+
 
 
         #--------Add widgets to popup--------#
@@ -241,27 +240,27 @@ class Item2(FloatLayout):
         Fl.add_widget(self.current_segement)
         Fl.add_widget(Bl)
         Fl.add_widget(btn)
-        
+
         pops.add_widget(Fl)
         pops.open()
 
 class Anomalies(StackLayout):
     def __init__(self, **kwargs):
         super(Anomalies, self).__init__(**kwargs)
-        #--------Set constraints of view--------#        
+        #--------Set constraints of view--------#
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 #--------create scrollable label--------#
         long_text = """There is a lot of data anomalies.There is something wong."""
-        
+
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
-        
-        
+
+
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Pie_Chart, self).__init__(**kwargs)
@@ -269,7 +268,7 @@ class Pie_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.45, 'center_x': 0.5}
 
 #--------Create pie chart--------#
-        
+
         plt.clf()#clear all
         plt.rcParams['font.size'] = 25.0#set font size of words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
@@ -302,7 +301,7 @@ class Pie_Chart(BoxLayout):
         ax.autoscale(enable=True)
 
 #--------Add pie chart to self--------#
-        
+
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class Bar_Chart(BoxLayout):
@@ -313,7 +312,7 @@ class Bar_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.503, 'center_x': 0.5}#left right top bottom
 
 #--------Create graph--------#
-        
+
         plt.clf()#clear all
         objects = ('Python', 'C++', 'Java', 'Perl', 'Scala', 'Lisp')
         y_pos = np.arange(len(objects))
@@ -325,16 +324,16 @@ class Bar_Chart(BoxLayout):
         plt.title('Programming language usage')
 
 #--------Add graph to self--------#
-        
+
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class ScrollableLabel(ScrollView):
     text = StringProperty('')
-    
+
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
-#--------Set constraints of view--------#        
+#--------Set constraints of view--------#
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
@@ -348,13 +347,13 @@ Interquartile Range: 10000000000
 Upper Quartile: 10000000000
 Lower Quartile: 10000000000
 Total Responses: 1000000000000000000000000000000000000000"""
-        
+
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
-        
-    
+
+
 
 class RV(RecycleView):
     def __init__(self, **kwargs):
@@ -383,4 +382,3 @@ class Error(Exception):
 # run the App
 if __name__ == "__main__":
     MyApp().run()
-

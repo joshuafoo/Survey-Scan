@@ -1,7 +1,7 @@
 from textblob import TextBlob
 # Text for Analysis
 text = TextBlob('''
-The le
+
 ''')
 # Autocorrect Feature
 # text = text.correct()
