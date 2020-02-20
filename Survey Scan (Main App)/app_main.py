@@ -1,15 +1,15 @@
 #--------Import all required packages--------#
 try:
     import kivy
-    #import pandas as pd
-    #import math
+    import pandas as pd
+    import math
     import matplotlib.pyplot as plt
     import numpy as np
 except ImportError:
     raise ImportError("Some Packages were not installed properly. Please install them and try again")
 
 from functools import partial
-#from textblob import TextBlob
+from textblob import TextBlob
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
 from kivy.config import Config
@@ -32,6 +32,11 @@ from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.properties import StringProperty
 from kivy.uix.togglebutton import ToggleButton
 
+# Class for Data Import
+class Question:
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
 
 class First(Screen):
     def on_enter(self):Window.size = (500, 100)
