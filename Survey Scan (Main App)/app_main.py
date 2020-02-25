@@ -11,6 +11,9 @@ except ImportError:
 from functools import partial
 from threading import Thread
 import sys
+import os
+from os import listdir
+from os.path import isfile, join
 #from textblob import TextBlob
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
@@ -34,6 +37,7 @@ from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.properties import StringProperty
 from kivy.uix.togglebutton import ToggleButton
 from kivy.clock import Clock
+from kivy.uix.spinner import Spinner
 
 class Question:
     def __init__(self, name, data):
@@ -41,7 +45,7 @@ class Question:
         self.data = data
 
 class First(Screen):
-    def on_enter(self):Window.size = (500, 100)
+    def on_enter(self):Window.size = (600, 150)
     def __init__(self, **kwargs):
         super(First, self).__init__(**kwargs)
 
@@ -52,44 +56,79 @@ class First(Screen):
 
         #"Enter file name" label
         l = Label(
-            text='Enter File Path:',
-            font_size='15sp',pos_hint ={'center_y': .5, 'center_x': .2},
+            text='Select file from directory',
+            font_size='15sp',pos_hint ={'center_y': .8, 'center_x': .5},
             size_hint = (.3, .25))
 
+        
         #Error label
         self.err = Label(
             text='Error: Invalid file Path',
             font_size='13sp',pos_hint ={'center_y': .2, 'center_x': .5},
             size_hint = (.3, .25),
             color=[1, .8, .8, 0])
+        
 
+        #generate spinner values
+        #get current file directory
+        cwd = os.getcwd()
+        files = []
+        for f in listdir(cwd):
+            if isfile(join(cwd, f)):
+                
+                #check if file extension is csv
+                if(f.replace(" ", "")[-4:] == ".csv"):
+                    
+                    #check if file name too long if so truncate
+                    if(len(f) > 30):
+                        f = f[:30] + "..."
+                    files.append(f)
+
+########INFO:files array contain all files with extension ".csv" (Can delete after read)
+                    
+        #display no csv files found in directory            
+        if(len(files)== 0):
+            files = ["No .csv files found in directory"]
+
+        #spinner    
+        self.spinner = Spinner(
+            text="Select",
+            values=set(files),
+            size_hint=(.5, .2),
+            pos_hint ={"center_y": .55, "center_x": .35})
+        
         #"Import button" button
-        btn = Button(text ='Import',
-                     size_hint =(.2, .25),
+        btn = Button(text ="Import",
+                     size_hint =(.2, .2),
                      background_color =(.3, .6, .7, 1),
-                     pos_hint ={'center_y': 0.5, 'center_x': .8})
-
-        #Textfield with 'File Name' placeholder
-        self.textinput = TextInput(text = "",
-                                   hint_text='File Path',
-                                   pos_hint ={'center_y': 0.489, 'center_x': .5},
-                                   size_hint = (.3, .25),
-                                   multiline=False)
-
-
-        #--------Actions/triggers and bindings--------#
+                     pos_hint ={"center_y": 0.55, "center_x": .8})
+        
+#--------Actions/triggers and bindings--------#
 
         #Function called when button pressed
         def on_button(instance):
             try:
-                print('Import button clicked.Text = ', self.textinput.text)
 
-                if(self.textinput.text != ""):
+#################TODO: may have to do some recoding sorry :(
+                
+#################INFO: self.spinner.text will give you the value that is selected in the spinner (self keyword infornt of it is very important) 
+                
+                file = self.spinner.text#filename and extension
+                print('Import button clicked selected spinner value = ', file)
+                # Data Validation (If Value Filepath)
+                try: 
+                    if not(os.path.isfile(file)):
+                        raise TypeError("Invalid File Path")
+                except TypeError:
+                    raise Error("Please enter a valid file path.")
+
+                # Data Validation (If Default "Select" value)
+                if(file != "Select" or file != "No .csv files found in directory"):
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
-                else:raise Error("Please enter a file path.")
 
+            # Error Handling    
             except Error as e:
                 self.err.text = str(e)
                 self.err.color = [1, .8, .8, 1]#make error text visible
@@ -101,7 +140,7 @@ class First(Screen):
 
         #--------Add widgets to screen--------#
         Fl.add_widget(btn)
-        Fl.add_widget(self.textinput)
+        Fl.add_widget(self.spinner)
         Fl.add_widget(l)
         Fl.add_widget(self.err)
         self.add_widget(Fl)
