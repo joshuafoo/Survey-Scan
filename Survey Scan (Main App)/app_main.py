@@ -1,15 +1,17 @@
 #--------Import all required packages--------#
 try:
     import kivy
-    import pandas as pd
-    import math
+    #import pandas as pd
+    #import math
+
     import matplotlib.pyplot as plt
     import numpy as np
 except ImportError:
     raise ImportError("Some Packages were not installed properly. Please install them and try again")
-
 from functools import partial
-from textblob import TextBlob
+from threading import Thread
+import sys
+#from textblob import TextBlob
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
 from kivy.config import Config
@@ -31,8 +33,8 @@ from kivy.uix.scrollview import ScrollView
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.properties import StringProperty
 from kivy.uix.togglebutton import ToggleButton
+from kivy.clock import Clock
 
-# Class for Data Import
 class Question:
     def __init__(self, name, data):
         self.name = name
@@ -104,9 +106,10 @@ class First(Screen):
         Fl.add_widget(self.err)
         self.add_widget(Fl)
 
+
 toggle_states = [["normal" for i in range(4)] for i in range(10)]#stores toggle states of toggle button
 default_down_states = [0,1,2,3,0,1,2,3,0,1]#default toggle states of toggle buttons
-
+file_path = ""
 for i in range(len(default_down_states)):
     toggle_states[i][default_down_states[i]] = "down"#set toggle buttons to down
 
@@ -119,12 +122,14 @@ class Item(GridLayout):
 
         root = App.get_running_app().root#scenemanger
 
-        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData()#reload data
         #Update toggle button states
         refff.b1state = refff.ids.b1.state
         refff.b2state = refff.ids.b2.state
         refff.b3state = refff.ids.b3.state
         refff.b4state = refff.ids.b4.state
+
+        root.get_screen('third').ids.rv.data = root.get_screen('third').ids.rv.getData()#reload data
+
 
 class StockList(RecycleView):
     def getData(self):
@@ -143,18 +148,25 @@ class StockList(RecycleView):
         return data
 
 class Second(Screen):
+
     def export(self):#export data button is clicked
         print(toggle_states)
         self.manager.current =  "third"# transition to third scene
-
+      
+    def quit_app(self):
+        App.get_running_app().stop()
+        
     def on_enter(self):
-        Window.top -= 30#Change position of window so it does not touch the bottom of the screen
-        Window.size = (1000, 700)#set size of window after transtion to this screen
+        Window.size = (1000, 800)#set size of window after transtion to this screen
 
+    def proccess_csv(self,filepath):
+        print(filepath)
+        
 
-class Third(Screen):
+class third(Screen):
     def save(self):#save button pressed
         print("Save to file enter logic here")
+    
     def on_enter(self):
         Window.size = (1000, 800)#set size of window after transtion to this screen
 
@@ -166,13 +178,14 @@ class Questionlist(RecycleView):
     number_of_elements = 10
     def getData(self):
         data=[]
-
+        
         for i in range(self.number_of_elements):
             add = {}
             add['name'] = 'Question ' + str(i)
             add['row_count'] = str(i)
+            add['question_type'] = "Multiple-Choice"
             data.append(add)
-
+            
         return data
 class Item2(FloatLayout):
 
@@ -186,12 +199,12 @@ class Item2(FloatLayout):
         #--------Creates popup widget--------#
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
-
+        
         if(len(name)>105):#check if name is more than 2 lines
             pops.title = name[:105] + "..."#Truncate name
         else:
             pops.title = name
-
+            
         pops.title_size = 40
 
         #--------Create ui elements--------#
@@ -210,13 +223,13 @@ class Item2(FloatLayout):
             Fl.remove_widget(self.current_segement)
             self.current_segement = globals()[name.replace(" ", "_")]()
             Fl.add_widget(self.current_segement)
-
+            
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
             print(name + " selected")#debug
 
         #setup toggle buttons
-
+        
         toggle_arra = []
         for i in self.array:
             Tb = ToggleButton(text=i,
@@ -229,15 +242,15 @@ class Item2(FloatLayout):
             Bl.add_widget(Tb)
 
         toggle_arra[0].state = "down"#set first toggle button to be default selected
-
-
+        
+        
         #"Dismiss" button
         btn = Button(text ='Dismiss',
                      size_hint =(.2, .1),
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={'center_y': 0.05, 'center_x': .5},
                      on_press = lambda *args: pops.dismiss())
-
+        
 
 
         #--------Add widgets to popup--------#
@@ -245,27 +258,27 @@ class Item2(FloatLayout):
         Fl.add_widget(self.current_segement)
         Fl.add_widget(Bl)
         Fl.add_widget(btn)
-
+        
         pops.add_widget(Fl)
         pops.open()
 
 class Anomalies(StackLayout):
     def __init__(self, **kwargs):
         super(Anomalies, self).__init__(**kwargs)
-        #--------Set constraints of view--------#
+        #--------Set constraints of view--------#        
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 #--------create scrollable label--------#
         long_text = """There is a lot of data anomalies.There is something wong."""
-
+        
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
-
-
+        
+        
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Pie_Chart, self).__init__(**kwargs)
@@ -273,7 +286,7 @@ class Pie_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.45, 'center_x': 0.5}
 
 #--------Create pie chart--------#
-
+        
         plt.clf()#clear all
         plt.rcParams['font.size'] = 25.0#set font size of words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
@@ -306,7 +319,7 @@ class Pie_Chart(BoxLayout):
         ax.autoscale(enable=True)
 
 #--------Add pie chart to self--------#
-
+        
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class Bar_Chart(BoxLayout):
@@ -317,7 +330,7 @@ class Bar_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.503, 'center_x': 0.5}#left right top bottom
 
 #--------Create graph--------#
-
+        
         plt.clf()#clear all
         objects = ('Python', 'C++', 'Java', 'Perl', 'Scala', 'Lisp')
         y_pos = np.arange(len(objects))
@@ -329,16 +342,16 @@ class Bar_Chart(BoxLayout):
         plt.title('Programming language usage')
 
 #--------Add graph to self--------#
-
+        
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class ScrollableLabel(ScrollView):
     text = StringProperty('')
-
+    
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
-#--------Set constraints of view--------#
+#--------Set constraints of view--------#        
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
@@ -352,34 +365,44 @@ Interquartile Range: 10000000000
 Upper Quartile: 10000000000
 Lower Quartile: 10000000000
 Total Responses: 1000000000000000000000000000000000000000"""
-
+        
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
+        
+    
 
-
-
-class RV(RecycleView):
-    def __init__(self, **kwargs):
-        super(RV, self).__init__(**kwargs)
-        self.data = [{'text': "Button " + str(x+1),"row":str(x)} for x in range(30)]
-
+class RV(RecycleView):pass
+        
+        
 # Scene manager class
 class MyApp(App):
 
-    # Builder.load_string(kv) #load kv string
     Builder.load_file("main.kv") #load kv file
     sm = ScreenManager(transition=NoTransition())#declare scenemanger with no transtion set as default
     #--------Add screens to Scene manager--------#
     sm.add_widget(First(name ='first'))
     sm.add_widget(Second(name ='second'))
-    sm.add_widget(Third(name ='third'))
+    sm.add_widget(third(name ='third'))
     sm.current = "first"#default first scene
+    def reset(self):
+        import kivy.core.window as window
+        from kivy.base import EventLoop
+        if not EventLoop.event_listeners:
+            from kivy.cache import Cache
+            window.Window = window.core_select_lib('window', window.window_impl, True)
+            Cache.print_usage()
+            for cat in Cache._categories:
+                Cache._objects[cat] = {}
 
     def build(self):
+        self.reset()
         self.title = 'Survey Scan'
         return self.sm
+        
+        
+        
 
 #error class
 class Error(Exception):
