@@ -204,19 +204,20 @@ class Second(Screen):
         App.get_running_app().stop()
 
     def on_enter(self):
-        Window.size = (950, 760)#set size of window after transtion to this screen
+        Window.size = (1000, 800)#set size of window after transtion to this screen
+        self.ids.rv.data = self.ids.rv.getData()#reload data
+
 
     def proccess_csv(self,filepath):
         print(filepath)
-        
+
 
 class third(Screen):
     def save(self):#save button pressed
         print("Save to file enter logic here")
-    
-    def on_enter(self):
-        Window.size = (950, 760)#set size of window after transtion to this screen
 
+    def on_enter(self):
+        Window.size = (1000, 800)#set size of window after transtion to this screen
 
 class MyLayout():pass
 
