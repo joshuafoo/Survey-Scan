@@ -19,8 +19,12 @@
     b4state: 'normal'
 
     Label:
+        text_size:
+        #font_name: 'AvenirNext-Regular'
         markup: True
-        text: "[size=30]" + root.name
+        text_size: self.width, None
+        padding_x: 60
+        text: "[size=33]" + root.name
 
     BoxLayout:
         size_hint_y: None
