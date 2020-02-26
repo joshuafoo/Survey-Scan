@@ -8,36 +8,37 @@ try:
     import math
     import matplotlib.pyplot as plt
     import numpy as np
-    from functools import partial
-    from threading import Thread
     import sys
     import os
+    from functools import partial
+    from threading import Thread
     from os import listdir
     from os.path import isfile, join
-    #from textblob import TextBlob
+    from textblob import TextBlob
     from kivy.app import App
-    from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
-    from kivy.config import Config
-    Config.set('graphics', 'resizable', False)
-    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     from kivy.core.window import Window
+    from kivy.core.text import FontContextManager as FCM
     from kivy.graphics import Color
-    from kivy.uix.floatlayout import FloatLayout
+    from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+    from kivy.properties import StringProperty
+    from kivy.clock import Clock
+    from kivy.lang import Builder
     from kivy.uix.button import Button
     from kivy.uix.textinput import TextInput
     from kivy.uix.label import Label
     from kivy.uix.popup import Popup
-    from kivy.uix.gridlayout import GridLayout
     from kivy.uix.recycleview import RecycleView
-    from kivy.lang import Builder
+    from kivy.uix.gridlayout import GridLayout
     from kivy.uix.stacklayout import StackLayout
     from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.floatlayout import FloatLayout
     from kivy.uix.scrollview import ScrollView
-    from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
-    from kivy.properties import StringProperty
     from kivy.uix.togglebutton import ToggleButton
-    from kivy.clock import Clock
     from kivy.uix.spinner import Spinner
+    from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
+    from kivy.config import Config
+    Config.set('graphics', 'resizable', False)
+    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 except ImportError:
     raise ImportError("Some Packages were not installed properly. Please install them and try again")
 
@@ -181,6 +182,7 @@ class StockList(RecycleView):
         data = []
         global questioninfo
         for i, item in enumerate(questioninfo):
+            print(item.name)
             add = {}
             add['name'] = str(item.name)
             add['b1state'] = toggle_states[i][0]
