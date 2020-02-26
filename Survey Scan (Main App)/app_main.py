@@ -183,15 +183,14 @@ class StockList(RecycleView):
         data = []
         global questioninfo
         for i, item in enumerate(questioninfo):
-            #print(item.name)############debug purposes only
+            #print(item.name) ## NOTE: DEBUG PURPOSES ONLY, DO NOT RUN IN MAIN APP
             add = {}
             #Truncate logic
             if(len(str(item.name)) >240):
-                add['name'] = str(item.name.replace("	",""))[:240] + "..."
+                add['name'] = str(item.name.replace("	"," "))[:240] + "..."
             else:
-                add['name'] = str(item.name.replace("	",""))
-                
-                
+                add['name'] = str(item.name.replace("	"," "))
+
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
