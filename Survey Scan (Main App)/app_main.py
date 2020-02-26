@@ -1,9 +1,8 @@
 #--------Import all required packages--------#
 try:
     import kivy
-    #import pandas as pd
-    #import math
-
+    import pandas as pd
+    import math
     import matplotlib.pyplot as plt
     import numpy as np
 except ImportError:
@@ -39,6 +38,12 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.clock import Clock
 from kivy.uix.spinner import Spinner
 
+# GLOBAL VARIABLES
+questioninfo = []
+toggle_states = [["normal" for i in range(4)] for i in range(60)]#stores toggle states of toggle button
+default_down_states = [0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1]#default toggle states of toggle buttons
+file_path = ""
+
 class Question:
     def __init__(self, name, data):
         self.name = name
@@ -60,14 +65,14 @@ class First(Screen):
             font_size='15sp',pos_hint ={'center_y': .8, 'center_x': .5},
             size_hint = (.3, .25))
 
-        
+
         #Error label
         self.err = Label(
-            text='Error: Invalid file Path',
+            text='Error: Invalid File Selected',
             font_size='13sp',pos_hint ={'center_y': .2, 'center_x': .5},
             size_hint = (.3, .25),
             color=[1, .8, .8, 0])
-        
+
 
         #generate spinner values
         #get current file directory
@@ -75,67 +80,75 @@ class First(Screen):
         files = []
         for f in listdir(cwd):
             if isfile(join(cwd, f)):
-                
+
                 #check if file extension is csv
                 if(f.replace(" ", "")[-4:] == ".csv"):
-                    
-                    #check if file name too long if so truncate
-                    if(len(f) > 30):
-                        f = f[:30] + "..."
                     files.append(f)
 
 ########INFO:files array contain all files with extension ".csv" (Can delete after read)
-                    
-        #display no csv files found in directory            
+
+        #display no csv files found in directory
         if(len(files)== 0):
             files = ["No .csv files found in directory"]
 
-        #spinner    
+        #spinner
+        modfiles = files[::] # MUST DEFINE EXPLICITLY
+        for i, item in enumerate(modfiles):
+            if(len(item) > 30):
+                modfiles[i] = item[:30] + "..."
         self.spinner = Spinner(
             text="Select",
-            values=set(files),
+            values=set(modfiles),
             size_hint=(.5, .2),
             pos_hint ={"center_y": .55, "center_x": .35})
-        
+
         #"Import button" button
         btn = Button(text ="Import",
                      size_hint =(.2, .2),
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={"center_y": 0.55, "center_x": .8})
-        
+
 #--------Actions/triggers and bindings--------#
 
         #Function called when button pressed
         def on_button(instance):
+            global questioninfo
             try:
-
-#################TODO: may have to do some recoding sorry :(
-                
-#################INFO: self.spinner.text will give you the value that is selected in the spinner (self keyword infornt of it is very important) 
-                
-                file = self.spinner.text#filename and extension
+#################INFO: self.spinner.text will give you the value that is selected in the spinner (self keyword infornt of it is very important)
+                file = files[modfiles.index(self.spinner.text)]
                 print('Import button clicked selected spinner value = ', file)
-                # Data Validation (If Value Filepath)
-                try: 
-                    if not(os.path.isfile(file)):
-                        raise TypeError("Invalid File Path")
-                except TypeError:
-                    raise Error("Please enter a valid file path.")
+                # Useless Data Validation (If Value Filepath)
+                if not(os.path.isfile(file)):
+                    print(file)
+                    raise Error("Please Select a valid .csv file")
 
                 # Data Validation (If Default "Select" value)
                 if(file != "Select" or file != "No .csv files found in directory"):
+                    # FILE DATA HANDLING
+                    surveyfile = pd.read_csv(file)
+                    questions = list(surveyfile.columns.values)
+                    notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
+                    for question in questions:
+                        isInvalid = False
+                        for restricted in notallowed: # CANNOT USE QUESTION.LOWER() IN NOT ALLOWED
+                            if question.lower() == restricted.lower():
+                                isInvalid = True
+                                break
+                        if not isInvalid:
+                            questioninfo.append(Question(question, list(surveyfile[question])))
+
+                    # CHANGE SCREEN
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
 
-            # Error Handling    
+
+            # Error Handling
             except Error as e:
                 self.err.text = str(e)
-                self.err.color = [1, .8, .8, 1]#make error text visible
-            except:pass
-
+                self.err.color = [1, .8, .8, 1] # Make error text visible
+#            except:pass
         btn.bind(on_press=on_button)
-
 
 
         #--------Add widgets to screen--------#
@@ -145,10 +158,6 @@ class First(Screen):
         Fl.add_widget(self.err)
         self.add_widget(Fl)
 
-
-toggle_states = [["normal" for i in range(4)] for i in range(10)]#stores toggle states of toggle button
-default_down_states = [0,1,2,3,0,1,2,3,0,1]#default toggle states of toggle buttons
-file_path = ""
 for i in range(len(default_down_states)):
     toggle_states[i][default_down_states[i]] = "down"#set toggle buttons to down
 
@@ -167,17 +176,17 @@ class Item(GridLayout):
         refff.b3state = refff.ids.b3.state
         refff.b4state = refff.ids.b4.state
 
-        root.get_screen('third').ids.rv.data = root.get_screen('third').ids.rv.getData()#reload data
+        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData()#reload data
 
 
 class StockList(RecycleView):
     def getData(self):
-        #data source for recycleview
         number_of_elements = 10
         data = []
-        for i in range(number_of_elements):
+        global questioninfo
+        for i, item in enumerate(questioninfo):
             add = {}
-            add['name'] = 'item ' + str(i)
+            add['name'] = str(item.name)
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
@@ -187,25 +196,26 @@ class StockList(RecycleView):
         return data
 
 class Second(Screen):
-
     def export(self):#export data button is clicked
         print(toggle_states)
         self.manager.current =  "third"# transition to third scene
-      
+
     def quit_app(self):
         App.get_running_app().stop()
-        
+
     def on_enter(self):
         Window.size = (1000, 800)#set size of window after transtion to this screen
+        self.ids.rv.data = self.ids.rv.getData()#reload data
+
 
     def proccess_csv(self,filepath):
         print(filepath)
-        
+
 
 class third(Screen):
     def save(self):#save button pressed
         print("Save to file enter logic here")
-    
+
     def on_enter(self):
         Window.size = (1000, 800)#set size of window after transtion to this screen
 
@@ -217,14 +227,12 @@ class Questionlist(RecycleView):
     number_of_elements = 10
     def getData(self):
         data=[]
-        
-        for i in range(self.number_of_elements):
+        for i, item in enumerate(questioninfo):
             add = {}
-            add['name'] = 'Question ' + str(i)
+            add['name'] = str(item.name)
             add['row_count'] = str(i)
             add['question_type'] = "Multiple-Choice"
             data.append(add)
-            
         return data
 class Item2(FloatLayout):
 
@@ -238,12 +246,12 @@ class Item2(FloatLayout):
         #--------Creates popup widget--------#
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
-        
+
         if(len(name)>105):#check if name is more than 2 lines
             pops.title = name[:105] + "..."#Truncate name
         else:
             pops.title = name
-            
+
         pops.title_size = 40
 
         #--------Create ui elements--------#
@@ -262,13 +270,13 @@ class Item2(FloatLayout):
             Fl.remove_widget(self.current_segement)
             self.current_segement = globals()[name.replace(" ", "_")]()
             Fl.add_widget(self.current_segement)
-            
+
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
             print(name + " selected")#debug
 
         #setup toggle buttons
-        
+
         toggle_arra = []
         for i in self.array:
             Tb = ToggleButton(text=i,
@@ -281,15 +289,15 @@ class Item2(FloatLayout):
             Bl.add_widget(Tb)
 
         toggle_arra[0].state = "down"#set first toggle button to be default selected
-        
-        
+
+
         #"Dismiss" button
         btn = Button(text ='Dismiss',
                      size_hint =(.2, .1),
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={'center_y': 0.05, 'center_x': .5},
                      on_press = lambda *args: pops.dismiss())
-        
+
 
 
         #--------Add widgets to popup--------#
@@ -297,27 +305,27 @@ class Item2(FloatLayout):
         Fl.add_widget(self.current_segement)
         Fl.add_widget(Bl)
         Fl.add_widget(btn)
-        
+
         pops.add_widget(Fl)
         pops.open()
 
 class Anomalies(StackLayout):
     def __init__(self, **kwargs):
         super(Anomalies, self).__init__(**kwargs)
-        #--------Set constraints of view--------#        
+        #--------Set constraints of view--------#
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 #--------create scrollable label--------#
         long_text = """There is a lot of data anomalies.There is something wong."""
-        
+
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
-        
-        
+
+
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Pie_Chart, self).__init__(**kwargs)
@@ -325,7 +333,7 @@ class Pie_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.45, 'center_x': 0.5}
 
 #--------Create pie chart--------#
-        
+
         plt.clf()#clear all
         plt.rcParams['font.size'] = 25.0#set font size of words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
@@ -358,7 +366,7 @@ class Pie_Chart(BoxLayout):
         ax.autoscale(enable=True)
 
 #--------Add pie chart to self--------#
-        
+
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class Bar_Chart(BoxLayout):
@@ -369,7 +377,7 @@ class Bar_Chart(BoxLayout):
         self.pos_hint ={'center_y': 0.503, 'center_x': 0.5}#left right top bottom
 
 #--------Create graph--------#
-        
+
         plt.clf()#clear all
         objects = ('Python', 'C++', 'Java', 'Perl', 'Scala', 'Lisp')
         y_pos = np.arange(len(objects))
@@ -381,16 +389,16 @@ class Bar_Chart(BoxLayout):
         plt.title('Programming language usage')
 
 #--------Add graph to self--------#
-        
+
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class ScrollableLabel(ScrollView):
     text = StringProperty('')
-    
+
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
-#--------Set constraints of view--------#        
+#--------Set constraints of view--------#
         self.orientation = "tb-lr"#left right top bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
@@ -404,17 +412,17 @@ Interquartile Range: 10000000000
 Upper Quartile: 10000000000
 Lower Quartile: 10000000000
 Total Responses: 1000000000000000000000000000000000000000"""
-        
+
         l = ScrollableLabel(text=long_text)
 
         #add scrollable label to self
         self.add_widget(l)
-        
-    
+
+
 
 class RV(RecycleView):pass
-        
-        
+
+
 # Scene manager class
 class MyApp(App):
 
@@ -439,9 +447,9 @@ class MyApp(App):
         self.reset()
         self.title = 'Survey Scan'
         return self.sm
-        
-        
-        
+                    
+
+
 
 #error class
 class Error(Exception):
