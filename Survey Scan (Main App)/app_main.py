@@ -1,5 +1,5 @@
 ## © Copyright 2020 by Joshua and Yan En. All Rights Reserved.
-## SURVEY SCAN VER 3.1
+## SURVEY SCAN VER 3.2
 
 ### Try Importing All Required Packages ###
 try:
@@ -37,6 +37,7 @@ try:
     from kivy.uix.spinner import Spinner
     from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
     from kivy.config import Config
+    Config.set('graphics', 'default_font','AvenirNext-Regular')
     Config.set('graphics', 'resizable', False)
     Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 except ImportError:
@@ -182,9 +183,15 @@ class StockList(RecycleView):
         data = []
         global questioninfo
         for i, item in enumerate(questioninfo):
-            print(item.name)
+            #print(item.name)############debug purposes only
             add = {}
-            add['name'] = str(item.name)
+            #Truncate logic
+            if(len(str(item.name)) >240):
+                add['name'] = str(item.name.replace("	",""))[:240] + "..."
+            else:
+                add['name'] = str(item.name.replace("	",""))
+                
+                
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
@@ -420,19 +427,10 @@ class MyApp(App):
     sm.add_widget(First(name ='first'))
     sm.add_widget(Second(name ='second'))
     sm.add_widget(third(name ='third'))
-    sm.current = "first" # Set default screen (first)
-    def reset(self):
-        import kivy.core.window as window
-        from kivy.base import EventLoop
-        if not EventLoop.event_listeners:
-            from kivy.cache import Cache
-            window.Window = window.core_select_lib('window', window.window_impl, True)
-            Cache.print_usage()
-            for cat in Cache._categories:
-                Cache._objects[cat] = {}
+    sm.current = "first" # Set default screen (first)\
 
     def build(self):
-        self.reset()
+        self.icon = 'Survey Scan Logo.png'
         self.title = 'Survey Scan'
         return self.sm
 
