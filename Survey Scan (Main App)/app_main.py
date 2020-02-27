@@ -51,9 +51,10 @@ notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated
 file_path = ""
 
 class Question:
-    def __init__(self, name, data):
+    def __init__(self, name, data, type):
         self.name = name
         self.data = data
+        self.type = type
 
 ### User Interface ###
 class First(Screen):
@@ -137,7 +138,7 @@ class First(Screen):
                                 isInvalid = True
                                 break
                         if not isInvalid:
-                            questioninfo.append(Question(question, list(surveyfile[question])))
+                            questioninfo.append(Question(question, list(surveyfile[question]),''))
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
                     global toggle_states
@@ -185,7 +186,6 @@ class First(Screen):
                         elif len(dataArray) > 10:
                             toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
                             directstate.append("Open Ended")
-                    print(toggle_states)
                     # CHANGE SCREEN
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
@@ -215,8 +215,8 @@ class Item(GridLayout):
         toggle_states[int(rvRow)][int(button_index)] = str(state) # Set toggle button toggled to down
         options = ["Multiple-Choice", "Strongly Agree/Disagree", "Scale Rating (1 to 10)", "Open Ended"]
         directstate[int(rvRow)] = options[int(button_index)]
-        root = App.get_running_app().root#scenemanger
-        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData()#reload data
+        root = App.get_running_app().root # Scenemanger
+        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData() # Reload data
         # Update toggle button states
         refff.b1state = refff.ids.b1.state
         refff.b2state = refff.ids.b2.state
@@ -251,8 +251,45 @@ class StockList(RecycleView):
         return data
 
 class Second(Screen):
-    def export(self): # export data button is clicked
-        print(toggle_states)
+    def export(self): # When export data button is clicked
+        global directstate
+        global questioninfo
+        ## DATA HANDLING ##
+        for index, question in enumerate(questioninfo):
+            question.data = directstate[index]
+            if question.type == "Open Ended":
+                for response in question.data:
+                    ## Advanced Data Processing
+                    # Statistics Calculation (Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
+                    totalpolarity = 0
+                    text = TextBlob(response)
+                    # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
+                    adjectives = {} # Get all Adjectives in List
+                    for item in text.tags:
+                        if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
+                            if str(item[0]) in adjectives.keys():
+                                adjectives[str(item[0])] += 1
+                            else:
+                                adjectives[str(item[0])] = 1
+
+                    # Conduct Sentiment Analysis on Data
+                    for sentence in text.sentences:
+                        totalpolarity += sentence.sentiment.polarity)
+
+            else:
+                print("")
+                ## Normal Data Processing
+                # Statistics Calculation (Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
+                # Mean/Average
+                # Mode
+                # Median
+                # Standard Deviation
+                # Interquartile range
+                # Upper Quartile
+                # Lower Quartile
+                # Total No. Responses
+
+
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
