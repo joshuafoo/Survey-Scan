@@ -1,4 +1,4 @@
-# Survey-Scan™
+# Survey Scan™
 Intended for Computing Coursework 2020. 
 For Proper Installation, please use Installation File and give it Sudo Rights. 
 
