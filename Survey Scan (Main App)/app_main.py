@@ -125,6 +125,7 @@ class First(Screen):
 
                 # Data Validation (If Default "Select" value)
                 if(file != "Select File" or file != "No .csv files found in directory"):
+                    questioninfo = []
                     # FILE DATA HANDLING
                     surveyfile = pd.read_csv(file)
                     questions = list(surveyfile.columns.values)
@@ -190,11 +191,11 @@ class StockList(RecycleView):
                 add['name'] = str(item.name.replace("	"," "))[:240] + "..."
             else:
                 add['name'] = str(item.name.replace("	"," "))
-
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
             add['b4state'] = toggle_states[i][3]
+            print(i)
             add['row_count'] = str(i)
             data.append(add)
         return data
