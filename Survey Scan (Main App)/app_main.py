@@ -45,10 +45,9 @@ except ImportError:
 
 # Declare Global Variables, Classes, Data Handling
 questioninfo = []
-# toggle_states = [["normal" for i in range(4)] for i in range(60)] # Stores Default Toggle States of Toggle Buttons
 toggle_states = [] # Stores Toggle States of Toggle Buttons
+directstate = []
 notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
-default_down_states = [0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1]#default toggle states of toggle buttons
 file_path = ""
 
 class Question:
@@ -159,6 +158,7 @@ class First(Screen):
                         print(dataArray)
                         if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
                             toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
+                            directstate.append("Strongly Agree/Disagree")
                         ## CHECK FOR SCALE RATING
                         elif len(dataArray) <= 10:
                             isValidQuestion = True
@@ -172,14 +172,17 @@ class First(Screen):
                                         break # Data is not valid type
                             if isValidQuestion:
                                 toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
+                                directstate.append("Scale Rating (1 to 10)")
                             else:
                                 pass # Not Scale Rating Question
                         ## CHECK FOR MULTIPLE CHOICE
                         elif len(dataArray) <= 4:
                             toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
+                            directstate.append("Multiple-Choice")
                         ## CHECK FOR OPEN ENDED
                         elif len(dataArray) > 10:
                             toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
+                            directstate.append("Open Ended")
                     print(toggle_states)
                     # CHANGE SCREEN
                     self.manager.current =  "second"
@@ -265,6 +268,7 @@ class third(Screen):
 
     def on_enter(self):
         Window.size = (950, 760) # Set size of window after transtion to this screen
+        self.ids.rv.data = self.ids.rv.getData() # Reload data
 
 class MyLayout():pass
 
@@ -274,11 +278,13 @@ class Questionlist(RecycleView):
     number_of_elements = 10
     def getData(self):
         data=[]
+        global questioninfo
+        global directstate
         for i, item in enumerate(questioninfo):
             add = {}
             add['name'] = str(item.name)
             add['row_count'] = str(i)
-            add['question_type'] = "Multiple-Choice"
+            add['question_type'] = directstate[i]
             data.append(add)
         return data
 
