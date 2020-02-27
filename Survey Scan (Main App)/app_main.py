@@ -45,7 +45,8 @@ except ImportError:
 
 # Declare Global Variables, Classes, Data Handling
 questioninfo = []
-toggle_states = [["normal" for i in range(4)] for i in range(60)] # Stores Toggle States of Toggle Buttons
+# toggle_states = [["normal" for i in range(4)] for i in range(60)] # Stores Default Toggle States of Toggle Buttons
+toggle_states = [] # Stores Toggle States of Toggle Buttons
 notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
 default_down_states = [0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1,0,1,2,3,0,1,2,3,0,1]#default toggle states of toggle buttons
 file_path = ""
@@ -117,7 +118,7 @@ class First(Screen):
             try:
                 ## NOTE: self.spinner.text will give you the value that is selected in the spinner
                 file = files[modfiles.index(self.spinner.text)]
-                print('Import button clicked selected spinner value = ', file)
+                print('File Selected (via Spinner on First Screen): ', file)
                 # Useless Data Validation (If Value Filepath)
                 if not(os.path.isfile(file)):
                     print(file)
@@ -138,7 +139,48 @@ class First(Screen):
                                 break
                         if not isInvalid:
                             questioninfo.append(Question(question, list(surveyfile[question])))
-
+                    ## ANALYSING OF DATA ##
+                    # TOGGLE STATES MODIFICATION
+                    global toggle_states
+                    toggle_states = []
+                    agreearray = ['agree', 'strongly agree', 'disagree', 'strongly disagree', 'neutral']
+                    for item in questioninfo:
+                        dataArray = {}
+                        for value in item.data: # NOTE: Already Sorted, Remove Whitespace if There
+                            # NOTE: FOR DEBUG PURPOSES
+                            # print(str(value).lower().strip())
+                            # print(dataArray.keys())
+                            if str(value).lower().strip() in dataArray.keys():
+                                dataArray[str(value).lower().strip()] += 1
+                            else:
+                                dataArray[str(value).lower()] = 1
+                        # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
+                        ## CHECK FOR STRONGLY AGREE/DISAGREE
+                        print(dataArray)
+                        if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
+                            toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
+                        ## CHECK FOR SCALE RATING
+                        elif len(dataArray) <= 10:
+                            isValidQuestion = True
+                            for value in dataArray:
+                                for i in range(10):
+                                    try:
+                                        if not(int(value) > 0 and int(value) <= 10):
+                                            isValidQuestion = False
+                                            raise TypeError()
+                                    except:
+                                        break # Data is not valid type
+                            if isValidQuestion:
+                                toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
+                            else:
+                                pass # Not Scale Rating Question
+                        ## CHECK FOR MULTIPLE CHOICE
+                        elif len(dataArray) <= 4:
+                            toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
+                        ## CHECK FOR OPEN ENDED
+                        elif len(dataArray) > 10:
+                            toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
+                    print(toggle_states)
                     # CHANGE SCREEN
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
@@ -149,7 +191,8 @@ class First(Screen):
             except Error as e:
                 self.err.text = str(e)
                 self.err.color = [1, .8, .8, 1] # Make error text visible
-            except:pass
+            #except:pass
+
         btn.bind(on_press=on_button)
 
         ## Add widgets to screen ##
@@ -158,9 +201,6 @@ class First(Screen):
         Fl.add_widget(l)
         Fl.add_widget(self.err)
         self.add_widget(Fl)
-
-for i in range(len(default_down_states)):
-    toggle_states[i][default_down_states[i]] = "down" # Set toggle buttons to down
 
 class Item(GridLayout):
 
@@ -183,6 +223,7 @@ class StockList(RecycleView):
         number_of_elements = 10
         data = []
         global questioninfo
+        global toggle_states
         for i, item in enumerate(questioninfo):
             #print(item.name) ## NOTE: DEBUG PURPOSES ONLY, DO NOT RUN IN MAIN APP
             add = {}
@@ -191,11 +232,14 @@ class StockList(RecycleView):
                 add['name'] = str(item.name.replace("	"," "))[:240] + "..."
             else:
                 add['name'] = str(item.name.replace("	"," "))
+            item.name = add['name']
+            print(item.name)
+            print(item.data)
+            print("\n")
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
             add['b4state'] = toggle_states[i][3]
-            print(i)
             add['row_count'] = str(i)
             data.append(add)
         return data
