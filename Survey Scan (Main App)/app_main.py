@@ -211,15 +211,16 @@ class Item(GridLayout):
         # NOTE: Function called when any toggle button is toggled
         toggle_states[int(rvRow)] = ["normal" for i in range(4)] # Set all toggle buttons to normal
         toggle_states[int(rvRow)][int(button_index)] = str(state) # Set toggle button toggled to down
-
+        options = ["Multiple-Choice", "Strongly Agree/Disagree", "Scale Rating (1 to 10)", "Open Ended"]
+        directstate[int(rvRow)] = options[int(button_index)]
         root = App.get_running_app().root#scenemanger
-
+        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData()#reload data
         # Update toggle button states
         refff.b1state = refff.ids.b1.state
         refff.b2state = refff.ids.b2.state
         refff.b3state = refff.ids.b3.state
         refff.b4state = refff.ids.b4.state
-        root.get_screen('second').ids.rv.data = root.get_screen('second').ids.rv.getData()#reload data
+
 
 class StockList(RecycleView):
     def getData(self):
