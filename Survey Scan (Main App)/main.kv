@@ -149,19 +149,21 @@
     question_type: 'init value'
     RoundedButton:
         size_hint:(0.9, 0.9)
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
         markup: True
         text: "[size=40]" + root.name
         padding_x: 50
         text_size: self.size
         halign: 'left'
-        valign: 'center'
+        valign: 'middle'
         on_release: root.fire_popup(root.name)
     Label:
         size_hint:(0.5, 0.4)
-        pos_hint: {'center_x': 0.13, 'center_y': 0.21}
+        pos_hint: {'center_x': 0.15, 'center_y': 0.35}
         markup:True
         padding_x: 30
+        halign: 'left'
+        valign: 'middle'
         text: "[size=30]" + root.question_type
 
 #:import Window kivy.core.window
@@ -208,10 +210,10 @@
             TextInput:
                 size_hint:(0.8, 0.6)
                 pos_hint: {'center_x': .5, 'center_y': .5}
-                hint_text:" Search bar"
+                hint_text:" Search"
                 font_size: 35
                 multiline:False
-                on_text: print("Text in search bar changed this is the text :",self.text)
+                on_text: print("Search Bar Text: ",self.text)
 
         Questionlist:
             id:rv

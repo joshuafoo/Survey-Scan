@@ -141,6 +141,8 @@ class First(Screen):
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
                     global toggle_states
+                    global directstate
+                    directstate = []
                     toggle_states = []
                     agreearray = ['agree', 'strongly agree', 'disagree', 'strongly disagree', 'neutral']
                     for item in questioninfo:
@@ -257,7 +259,7 @@ class Second(Screen):
         App.get_running_app().stop()
 
     def on_enter(self):
-        Window.size = (950, 760) # Set size of window after transtion to this screen
+        Window.size = (950, 700) # Set size of window after transtion to this screen
         self.ids.rv.data = self.ids.rv.getData() # Reload data
 
     def proccess_csv(self,filepath):
@@ -268,7 +270,7 @@ class third(Screen):
         print("Save to file enter logic here")
 
     def on_enter(self):
-        Window.size = (950, 760) # Set size of window after transtion to this screen
+        Window.size = (950, 700) # Set size of window after transtion to this screen
         self.ids.rv.data = self.ids.rv.getData() # Reload data
 
 class MyLayout():pass
@@ -276,7 +278,6 @@ class MyLayout():pass
 class MyPopup(Popup):pass
 
 class Questionlist(RecycleView):
-    number_of_elements = 10
     def getData(self):
         data=[]
         global questioninfo
@@ -451,14 +452,16 @@ class Statistics(StackLayout):
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
-        long_text = """Mean/Average: 100000
-Mode: 10000
-Median: 10000
-Standard Deviation: 100000000000
-Interquartile Range: 10000000000
-Upper Quartile: 10000000000
-Lower Quartile: 10000000000
-Total Responses: 1000000000000000000000000000000000000000"""
+        long_text = """\
+Mean/Average: {}
+Mode: {}
+Median: {}
+Standard Deviation: {}
+Interquartile Range: {}
+Upper Quartile: {}
+Lower Quartile: {}
+Total No. Responses: {}
+""".format('1','1','1','1','1','1','1','1')
 
         l = ScrollableLabel(text=long_text)
 
