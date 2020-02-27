@@ -332,7 +332,7 @@ class Item2(FloatLayout):
         toggle_arra = []
         for i in self.array:
             Tb = ToggleButton(text=i,
-                              group = "1",
+                              group = "joshua",
                               state = "normal",
                               allow_no_selection = False)
 
