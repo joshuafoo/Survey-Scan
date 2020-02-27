@@ -57,7 +57,7 @@ class Question:
 
 ### User Interface ###
 class First(Screen):
-    def on_enter(self):Window.size = (600, 150)
+    def on_enter(self):Window.size = (600, 200)
     def __init__(self, **kwargs):
         super(First, self).__init__(**kwargs)
         ## Creating UI Elements ##
@@ -67,7 +67,7 @@ class First(Screen):
         # Creating "Enter file name" label
         l = Label(
             text='Select file from directory',
-            font_size='15sp',pos_hint ={'center_y': .8, 'center_x': .5},
+            font_size='15sp',pos_hint ={'center_y': .85, 'center_x': .5},
             size_hint = (.3, .25))
 
         # Creating Error Label, Set to Hidden
@@ -96,19 +96,19 @@ class First(Screen):
         # Truncate all values that exceed spinner, display new values
         modfiles = files[::] # Create new instance of files called "modfiles"
         for i, item in enumerate(modfiles):
-            if(len(item) > 30):
-                modfiles[i] = item[:30] + "..."
+            if(len(item) > 40):
+                modfiles[i] = item[:40] + "..."
         self.spinner = Spinner(
             text="Select File",
             values=set(modfiles),
-            size_hint=(.5, .2),
-            pos_hint ={"center_y": .55, "center_x": .35})
+            size_hint=(.6, .2),
+            pos_hint ={"center_y": .65, "center_x": .4})
 
         # Create Import Button
         btn = Button(text ="Import",
                      size_hint =(.2, .2),
                      background_color =(.3, .6, .7, 1),
-                     pos_hint ={"center_y": 0.55, "center_x": .8})
+                     pos_hint ={"center_y": .65, "center_x": .8})
 
 ## ACTIONS/TRIGGERS AND BINDINGS ##
         # Function: When Button Pressed
