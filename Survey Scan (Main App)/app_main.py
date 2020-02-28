@@ -10,11 +10,12 @@ try:
     import numpy as np
     import sys
     import os
+    import operator
+    import statistics
     from functools import partial
     from threading import Thread
     from os import listdir
     from os.path import isfile, join
-    from statistics import stdev
     from textblob import TextBlob
     from kivy.app import App
     from kivy.core.window import Window
@@ -56,6 +57,17 @@ class Question:
         self.name = name
         self.data = data
         self.type = type
+
+class QnData:
+    def __init__(self, total, mean, median, standarddev, iqr, uq, lq, totalresponses):
+        self.total = total
+        self.mean = mean
+        self.median = Median
+        self.standarddev = standarddev
+        self.iqr = iqr
+        self.uq = uq
+        self.lq = lq
+        self.totalresponses = totalresponses
 
 ### User Interface ###
 class First(Screen):
@@ -137,7 +149,17 @@ class First(Screen):
                             if question.lower() == restricted.lower():
                                 isInvalid = True
                                 break
+                        for response in list(surveyfile[question]):
+                            try:
+                                print(str(response).lower())
+                                if str(response).lower == "nil" or str(response) == "": #or math.isnan(int(response))
+                                    print('ran')
+                                    print(response)
+                                    surveyfile[question].remove(response)
+                            except:
+                                print("")
                         if not isInvalid:
+                            print(list(surveyfile[question]))
                             questioninfo.append(Question(question, list(surveyfile[question]),''))
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
@@ -253,16 +275,17 @@ class Second(Screen):
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
             frequency = {}
-            total = mean = median = standarddev = iqr = uq = lq = totalresponses = 0
+            adjectives = {}
+            max = min = mean = median = standarddev = iqr = uq = lq = totalresponses = 0
             if question.type == "Open Ended":
                 polarityarray = []
                 for response in question.data:
                     temp = []
                     ## Advanced Data Processing
                     # Statistics Calculation (Minimum Sentiment, Maximum Sentiment, Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
+                    print(response)
                     text = TextBlob(response)
                     # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
-                    adjectives = {} # Get all Adjectives in List
                     for item in text.tags:
                         if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
                             if str(item[0]) in adjectives.keys():
@@ -274,7 +297,10 @@ class Second(Screen):
                     for sentence in text.sentences:
                         temp.append(sentence.sentiment.polarity)
                     polarityarray.append(temp)
+
+
                 # Mean/Average
+                mean = sum(polarityarray)/totalresponses
 
                 # Mode
 
@@ -290,40 +316,45 @@ class Second(Screen):
 
                 # Total No. Responses
 
+                ## SAVE THE CALCULATED DATA
+
 
             else: # If NOT OPEN ENDED
                 ## Normal Data Processing
                 ## DATA HANDLING ##
-                standarddev = stdev(tuple(question.data))
                 ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
                 totalresponses = len(question.data)
-                for answer in question:
-                    # Mean/Average
-                    total += answer
-
-                    # Frequency Table
+                for answer in question.data:
                     if str(answer) in frequency.keys():
                         frequency[str(answer)] += 1
                     else:
                         frequency[str(answer)] = 1
 
+                # Statistics Calculation and Evaluation
+                # Standard Deviation
+                # standarddev = statistics.stdev(question.data)
 
-        # Statistics Calculation and Evaluation
-        # Minimum
+                # Minimum
+                # min = min(frequency.keys(), key=(lambda k: str(frequency[k])))
+                # print(min)
 
-        # Maximum
+                # Maximum
+                # max = max(frequency.keys(), key=(lambda k: str(frequency[k])))
+                # print(max)
 
-        # Mean
-            mean = total/totalresponses
+                # Mean
+                print(totalresponses)
+                print(frequency)
+                #mean = sum(frequency)/int(totalresponses)
 
-        # Upper Quartile
-        uq = ""
+                # Upper Quartile
+                uq = ""
 
-        # Lower Quartile
-        lq = ""
+                # Lower Quartile
+                lq = ""
 
-        # Interquartile range
-        iqr = ""
+                # Interquartile range
+                iqr = ""
 
         self.manager.current =  "third" # Transition to third scene
 
