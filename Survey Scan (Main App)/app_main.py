@@ -14,6 +14,7 @@ try:
     from threading import Thread
     from os import listdir
     from os.path import isfile, join
+    from statistics import stdev
     from textblob import TextBlob
     from kivy.app import App
     from kivy.core.window import Window
@@ -157,7 +158,6 @@ class First(Screen):
                                 dataArray[str(value).lower()] = 1
                         # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
                         ## CHECK FOR STRONGLY AGREE/DISAGREE
-                        print(dataArray)
                         if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
                             toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
                             directstate.append("Strongly Agree/Disagree")
@@ -225,7 +225,6 @@ class Item(GridLayout):
 
 class StockList(RecycleView):
     def getData(self):
-        number_of_elements = 10
         data = []
         global questioninfo
         global toggle_states
@@ -238,7 +237,6 @@ class StockList(RecycleView):
             else:
                 add['name'] = str(item.name.replace("	"," "))
             item.name = add['name']
-            print("\n")
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
             add['b3state'] = toggle_states[i][2]
@@ -254,6 +252,8 @@ class Second(Screen):
         ## DATA HANDLING ##
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
+            frequency = {}
+            total = mean = median = standarddev = iqr = uq = lq = totalresponses = 0
             if question.type == "Open Ended":
                 polarityarray = []
                 for response in question.data:
@@ -292,15 +292,10 @@ class Second(Screen):
 
 
             else: # If NOT OPEN ENDED
-                print("")
                 ## Normal Data Processing
-                global directstate
-                global questioninfo
                 ## DATA HANDLING ##
-                frequency = {}
-                total, mean, median, standarddev, iqr, uq, lq, totalresponses = 0
-                standarddev = math.stddev(question.data)
-                # Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
+                standarddev = stdev(tuple(question.data))
+                ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
                 totalresponses = len(question.data)
                 for answer in question:
                     # Mean/Average
@@ -322,13 +317,13 @@ class Second(Screen):
             mean = total/totalresponses
 
         # Upper Quartile
-        uq =
+        uq = ""
 
         # Lower Quartile
-        lq =
+        lq = ""
 
         # Interquartile range
-        iqr =
+        iqr = ""
 
         self.manager.current =  "third" # Transition to third scene
 
@@ -404,7 +399,7 @@ class Item2(FloatLayout):
 
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
-            print(name + " selected") # NOTE: For Debug Purposes
+            print(name + " Selected") # NOTE: For Debug Purposes
 
         # Setup toggle buttons
         toggle_arra = []
