@@ -121,7 +121,6 @@ class First(Screen):
                 print('File Selected (via Spinner on First Screen): ', file)
                 # Useless Data Validation (If Value Filepath)
                 if not(os.path.isfile(file)):
-                    print(file)
                     raise Error("Please Select a valid .csv file")
 
                 # Data Validation (If Default "Select" value)
@@ -239,8 +238,6 @@ class StockList(RecycleView):
             else:
                 add['name'] = str(item.name.replace("	"," "))
             item.name = add['name']
-            print(item.name)
-            print(item.data)
             print("\n")
             add['b1state'] = toggle_states[i][0]
             add['b2state'] = toggle_states[i][1]
@@ -256,12 +253,13 @@ class Second(Screen):
         global questioninfo
         ## DATA HANDLING ##
         for index, question in enumerate(questioninfo):
-            question.data = directstate[index]
+            question.type = directstate[index]
             if question.type == "Open Ended":
+                polarityarray = []
                 for response in question.data:
+                    temp = []
                     ## Advanced Data Processing
-                    # Statistics Calculation (Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
-                    totalpolarity = 0
+                    # Statistics Calculation (Minimum Sentiment, Maximum Sentiment, Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
                     text = TextBlob(response)
                     # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
                     adjectives = {} # Get all Adjectives in List
@@ -274,21 +272,63 @@ class Second(Screen):
 
                     # Conduct Sentiment Analysis on Data
                     for sentence in text.sentences:
-                        totalpolarity += sentence.sentiment.polarity)
-
-            else:
-                print("")
-                ## Normal Data Processing
-                # Statistics Calculation (Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
+                        temp.append(sentence.sentiment.polarity)
+                    polarityarray.append(temp)
                 # Mean/Average
+
                 # Mode
+
                 # Median
+
                 # Standard Deviation
+
                 # Interquartile range
+
                 # Upper Quartile
+
                 # Lower Quartile
+
                 # Total No. Responses
 
+
+            else: # If NOT OPEN ENDED
+                print("")
+                ## Normal Data Processing
+                global directstate
+                global questioninfo
+                ## DATA HANDLING ##
+                frequency = {}
+                total, mean, median, standarddev, iqr, uq, lq, totalresponses = 0
+                standarddev = math.stddev(question.data)
+                # Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
+                totalresponses = len(question.data)
+                for answer in question:
+                    # Mean/Average
+                    total += answer
+
+                    # Frequency Table
+                    if str(answer) in frequency.keys():
+                        frequency[str(answer)] += 1
+                    else:
+                        frequency[str(answer)] = 1
+
+
+        # Statistics Calculation and Evaluation
+        # Minimum
+
+        # Maximum
+
+        # Mean
+            mean = total/totalresponses
+
+        # Upper Quartile
+        uq =
+
+        # Lower Quartile
+        lq =
+
+        # Interquartile range
+        iqr =
 
         self.manager.current =  "third" # Transition to third scene
 
