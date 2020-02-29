@@ -77,15 +77,15 @@ class NoTitleDialog(Popup):
     #e.g to show an alert with message "WHY" and a ok button
 
     #call:
-    
+
     #dialog = NoTitleDialog()
-    #dialog.label_text = "WHY" 
+    #dialog.label_text = "WHY"
     #dialog.open()
-    
+
     def __init__(self, **kwargs):
         super(NoTitleDialog, self).__init__(**kwargs)
         self.label_text = "Error"
-        
+
 class First(Screen):
     def on_enter(self):Window.size = (600, 200)
     def __init__(self, **kwargs):
@@ -169,12 +169,11 @@ class First(Screen):
                             questioninfo.append(Question(question, list(surveyfile[question]),''))
                     # REMOVING UNWANTED VALUES
                     for validquestiondata in questioninfo:
-                        print("RAN")
                         for response in validquestiondata.data:
-                            print(str(response).lower())
-                            print(str(response).lower() == 'nil')
-                            if str(response).strip().lower() == "nil" or str(response) == "" or (type(response) == float and response == math.nan):
-                                validquestiondata.data.remove(response)
+                            try:
+                                if str(response).strip().lower() == "nil" or str(response) == "" or (type(response) == float and response == math.nan):
+                                    validquestiondata.data.remove(response)
+                            except: pass
 
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
