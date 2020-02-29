@@ -146,7 +146,10 @@ class First(Screen):
             global questioninfo
             try:
                 ## NOTE: self.spinner.text will give you the value that is selected in the spinner
-                file = files[modfiles.index(self.spinner.text)]
+                try:
+                    file = files[modfiles.index(self.spinner.text)]
+                except ValueError:
+                    file = "Select File"
                 print('File Selected (via Spinner on First Screen): ', file)
                 # Useless Data Validation (If Value Filepath)
                 if not(os.path.isfile(file)):
@@ -370,7 +373,7 @@ class Second(Screen):
                 #
                 # # Interquartile range
                 # iqr = ""
-
+                pass
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
