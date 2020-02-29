@@ -338,38 +338,38 @@ class Second(Screen):
                 ## Normal Data Processing
                 ## DATA HANDLING ##
                 ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
-                totalresponses = len(question.data)
-                for answer in question.data:
-                    if str(answer) in frequency.keys():
-                        frequency[str(answer)] += 1
-                    else:
-                        frequency[str(answer)] = 1
-
-                # Statistics Calculation and Evaluation
-                # Standard Deviation
-                # standarddev = statistics.stdev(question.data)
-
-                # Minimum
-                # min = min(frequency.keys(), key=(lambda k: str(frequency[k])))
-                # print(min)
-
-                # Maximum
-                # max = max(frequency.keys(), key=(lambda k: str(frequency[k])))
-                # print(max)
-
-                # Mean
-                print(totalresponses)
-                print(frequency)
-                #mean = sum(frequency)/int(totalresponses)
-
-                # Upper Quartile
-                uq = ""
-
-                # Lower Quartile
-                lq = ""
-
-                # Interquartile range
-                iqr = ""
+                # totalresponses = len(question.data)
+                # for answer in question.data:
+                #     if str(answer) in frequency.keys():
+                #         frequency[str(answer)] += 1
+                #     else:
+                #         frequency[str(answer)] = 1
+                #
+                # # Statistics Calculation and Evaluation
+                # # Standard Deviation
+                # # standarddev = statistics.stdev(question.data)
+                #
+                # # Minimum
+                # # min = min(frequency.keys(), key=(lambda k: str(frequency[k])))
+                # # print(min)
+                #
+                # # Maximum
+                # # max = max(frequency.keys(), key=(lambda k: str(frequency[k])))
+                # # print(max)
+                #
+                # # Mean
+                # print(totalresponses)
+                # print(frequency)
+                # #mean = sum(frequency)/int(totalresponses)
+                #
+                # # Upper Quartile
+                # uq = ""
+                #
+                # # Lower Quartile
+                # lq = ""
+                #
+                # # Interquartile range
+                # iqr = ""
 
         self.manager.current =  "third" # Transition to third scene
 
