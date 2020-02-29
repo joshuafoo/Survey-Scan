@@ -70,6 +70,22 @@ class QnData:
         self.totalresponses = totalresponses
 
 ### User Interface ###
+
+class NoTitleDialog(Popup):
+    #alert
+    #How to use:
+    #e.g to show an alert with message "WHY" and a ok button
+
+    #call:
+    
+    #dialog = NoTitleDialog()
+    #dialog.label_text = "WHY" 
+    #dialog.open()
+    
+    def __init__(self, **kwargs):
+        super(NoTitleDialog, self).__init__(**kwargs)
+        self.label_text = "Error"
+        
 class First(Screen):
     def on_enter(self):Window.size = (600, 200)
     def __init__(self, **kwargs):
