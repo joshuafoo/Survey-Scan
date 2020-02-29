@@ -378,7 +378,7 @@ class Second(Screen):
                 totalresponses = len(question.data)
 
                 ## NUMPY ARRAY FOR STATISTIC VALUES
-                nparray = np.array([value for subarray in question.data for value in subarray])
+                nparray = np.array([value for value in question.data])
 
                 try:
                     # Mean
@@ -411,7 +411,7 @@ class Second(Screen):
                     ## RAISE ERROR
                     mean = "NA"
                     dialog = NoTitleDialog()
-                    dialog.label_text = "No Mean will be shown for Multiple Choice and Scale Rating Questions."
+                    dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
                     dialog.open()
                     pass
 
