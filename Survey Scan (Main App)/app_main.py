@@ -52,6 +52,8 @@ toggle_states = [] # Stores Toggle States of Toggle Buttons
 directstate = []
 notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
 file_path = ""
+displayarr = [] # For Data Processing from Second Screen to Third Screen
+
 
 class Question:
     def __init__(self, name, data, type):
@@ -60,10 +62,12 @@ class Question:
         self.type = type
 
 class QnData:
-    def __init__(self, total, mean, median, standarddev, iqr, uq, lq, totalresponses):
-        self.total = total
+    def __init__(self, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses):
+        self.minval = minval
+        self.maxval = maxval
         self.mean = mean
-        self.median = Median
+        self.median = median
+        self.mode = mode
         self.standarddev = standarddev
         self.iqr = iqr
         self.uq = uq
@@ -296,6 +300,7 @@ class Second(Screen):
             question.type = directstate[index]
             frequency = {}
             maxval = minval = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
+            global displayarr
             if question.type == "Open Ended":
                 polarityarray = []
                 for response in question.data:
@@ -361,8 +366,8 @@ class Second(Screen):
                     pass
 
                 ## SAVE THE CALCULATED DATA
-                print(nparray)
-                print(minval, maxval, iqr, lq, uq, standarddev, median, mean)
+                temp = QnData(minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses)
+                displayarr.append(temp)
 
             else: # If NOT OPEN ENDED
                 ## Normal Data Processing
@@ -424,8 +429,8 @@ class Second(Screen):
                     pass
 
                 ## SAVE THE CALCULATED DATA
-                print(nparray)
-                print(minval, maxval, iqr, lq, uq, standarddev, median, mean)
+                temp = QnData(minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses)
+                displayarr.append(temp)
 
         self.manager.current =  "third" # Transition to third scene
 
