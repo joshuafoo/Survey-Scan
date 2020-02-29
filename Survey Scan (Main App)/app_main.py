@@ -72,13 +72,8 @@ class QnData:
 
 ### User Interface ###
 
-class NoTitleDialog(Popup):
-    #alert
-    #How to use:
-    #e.g to show an alert with message "WHY" and a ok button
-
-    #call:
-
+class NoTitleDialog(Popup): # ALERT CLASS
+    # e.g to show an alert with message "WHY" and a ok button, call
     #dialog = NoTitleDialog()
     #dialog.label_text = "WHY"
     #dialog.open()
@@ -288,6 +283,11 @@ class StockList(RecycleView):
         return data
 
 class Second(Screen):
+    def goback(self): # When back button is clicked
+        Window.left = 420
+        Window.top = 250
+        self.manager.current =  "first" # Transition to third scene
+
     def export(self): # When export data button is clicked
         global directstate
         global questioninfo
@@ -329,32 +329,36 @@ class Second(Screen):
                         totalvalue += subsentiment
                 try:
                     mean = totalvalue/totalresponses
+
+                    # Mode
+                    mode = stats.mode(nparray)
+
+                    # Median
+                    median = np.median(nparray)
+
+                    # Standard Deviation
+                    standarddev = np.std(nparray)
+
+                    # Upper Quartile
+                    uq = np.median(nparray[10:])
+
+                    # Lower Quartile / 1st Quartile
+                    lq = np.median(nparray[:10])
+
+                    # Interquartile range
+                    iqr = abs(uq-lq)
+
+                    # Minimum and Maximum
+                    minval = min(nparray)
+                    maxval = max(nparray)
+
                 except ZeroDivisionError:
                     ## RAISE ERROR
-                    mean = "ERROR, DIVISION BY ZERO"
+                    mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
+                    dialog = NoTitleDialog()
+                    dialog.label_text = "No Responses were found for this question. Statistics will not be shown for this question. "
+                    dialog.open()
                     pass
-
-                # Mode
-                mode = stats.mode(nparray)
-
-                # Median
-                median = np.median(nparray)
-
-                # Standard Deviation
-                standarddev = np.std(nparray)
-
-                # Upper Quartile
-                uq = np.median(nparray[10:])
-
-                # Lower Quartile / 1st Quartile
-                lq = np.median(nparray[:10])
-
-                # Interquartile range
-                iqr = abs(uq-lq)
-
-                # Minimum and Maximum
-                minval = min(nparray)
-                maxval = max(nparray)
 
                 ## SAVE THE CALCULATED DATA
                 print(nparray)
@@ -365,46 +369,59 @@ class Second(Screen):
                 ## DATA HANDLING ##
                 ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
                 for response in question.data:
-                    temp = []
+                    if str(response) in frequency.keys():
+                        frequency[str(response)] += 1
+                    else:
+                        frequency[str(response)] = 1
+
                 # Total No. Responses
-                totalresponses = len(polarityarray)
+                totalresponses = len(question.data)
 
                 ## NUMPY ARRAY FOR STATISTIC VALUES
-                nparray = np.array([value for subarray in polarityarray for value in subarray])
+                nparray = np.array([value for subarray in question.data for value in subarray])
 
-                # Mean/Average
-                totalvalue = 0
-                for sentiset in polarityarray:
-                    for subsentiment in sentiset:
-                        totalvalue += subsentiment
                 try:
+                    # Mean
+                    totalvalue = sum([int(x) for x in question.data])
                     mean = totalvalue/totalresponses
-                except ZeroDivisionError:
+
+                    # Mode
+                    mode = stats.mode(nparray)
+
+                    # Median
+                    median = np.median(nparray)
+
+                    # Standard Deviation
+                    standarddev = np.std(nparray)
+
+                    # Upper Quartile
+                    uq = np.median(nparray[10:])
+
+                    # Lower Quartile / 1st Quartile
+                    lq = np.median(nparray[:10])
+
+                    # Interquartile range
+                    iqr = abs(uq-lq)
+
+                    # Minimum and Maximum
+                    minval = min(nparray)
+                    maxval = max(nparray)
+
+                except ValueError:
                     ## RAISE ERROR
-                    mean = "ERROR, DIVISION BY ZERO"
+                    mean = "NA"
+                    dialog = NoTitleDialog()
+                    dialog.label_text = "No Mean will be shown for Multiple Choice and Scale Rating Questions."
+                    dialog.open()
                     pass
 
-                # Mode
-                mode = stats.mode(nparray)
-
-                # Median
-                median = np.median(nparray)
-
-                # Standard Deviation
-                standarddev = np.std(nparray)
-
-                # Upper Quartile
-                uq = np.median(nparray[10:])
-
-                # Lower Quartile / 1st Quartile
-                lq = np.median(nparray[:10])
-
-                # Interquartile range
-                iqr = abs(uq-lq)
-
-                # Minimum and Maximum
-                minval = min(nparray)
-                maxval = max(nparray)
+                except ZeroDivisionError:
+                    ## RAISE ERROR
+                    mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
+                    dialog = NoTitleDialog()
+                    dialog.label_text = "No Responses were found for this question. Statistics will not be shown for this question. "
+                    dialog.open()
+                    pass
 
                 ## SAVE THE CALCULATED DATA
                 print(nparray)
