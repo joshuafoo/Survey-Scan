@@ -71,19 +71,19 @@
 <NoTitleDialog>:
     title: ""                 # <<<<<<<<
     separator_height: 0       # <<<<<<<<
-    size_hint: None, None
-    size: 400, 200
-    label_text:"Error"
+    size_hint: 0.6, 0.4
+    #size: 400, 200
 
     BoxLayout:
         orientation: "vertical"
         Label:
-            text: root.label_text
+            text: "Are you sure you want to exit?"
         BoxLayout:
             size_hint_y: 0.3
             Button:
-                text: "OK"
+                text: "Ok"
                 on_press:root.dismiss()
+
 
 <Second>:
     name: 'second'
