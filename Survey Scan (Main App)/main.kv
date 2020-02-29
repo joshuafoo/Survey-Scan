@@ -73,18 +73,17 @@
     separator_height: 0       # <<<<<<<<
     size_hint: None, None
     size: 400, 200
+    label_text:"Error"
 
     BoxLayout:
         orientation: "vertical"
         Label:
-            text: "Are you sure you want to exit?"
+            text: root.label_text
         BoxLayout:
             size_hint_y: 0.3
             Button:
-                text: "Yes"
-            Button:
-                text: "No"
-
+                text: "OK"
+                on_press:root.dismiss()
 <Second>:
     name: 'second'
 
