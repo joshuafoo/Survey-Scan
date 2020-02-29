@@ -143,6 +143,8 @@ class First(Screen):
 ## ACTIONS/TRIGGERS AND BINDINGS ##
         # Function: When Button Pressed
         def on_button(instance):
+            Window.left = 250
+            Window.top = 40
             global questioninfo
             try:
                 ## NOTE: self.spinner.text will give you the value that is selected in the spinner
@@ -292,8 +294,7 @@ class Second(Screen):
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
             frequency = {}
-            adjectives = {}
-            max = min = mean = median = standarddev = iqr = uq = lq = totalresponses = 0
+            max = min = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
             if question.type == "Open Ended":
                 polarityarray = []
                 for response in question.data:
@@ -304,35 +305,56 @@ class Second(Screen):
                     # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
                     for item in text.tags:
                         if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
-                            if str(item[0]) in adjectives.keys():
-                                adjectives[str(item[0])] += 1
+                            if str(item[0]) in frequency.keys():
+                                frequency[str(item[0])] += 1
                             else:
-                                adjectives[str(item[0])] = 1
+                                frequency[str(item[0])] = 1
 
                     # Conduct Sentiment Analysis on Data
                     for sentence in text.sentences:
                         temp.append(sentence.sentiment.polarity)
                     polarityarray.append(temp)
 
+                # Total No. Responses
+                totalresponses = len(polarityarray)
+
+                ## NUMPY ARRAY FOR STATISTIC VALUES
+                nparray = np.array([frequency[k] for k in frequency])
 
                 # Mean/Average
-                #print(sum(polarityarray))
-                #print(totalresponses)
-                #mean = sum(polarityarray)/totalresponses
+                totalvalue = 0
+                for sentiset in polarityarray:
+                    for subsentiment in sentiset:
+                        totalvalue += subsentiment
+                try:
+                    mean = totalvalue/totalresponses
+                except ZeroDivisionError:
+                    ## RAISE ERROR
+                    mean = "ERROR, DIVISION BY ZERO"
+                    pass
 
                 # Mode
+                mode = nparray.mean()
+                # mode = max(frequency.iteritems(), key=operator.itemgetter(1))[0]
 
                 # Median
+                median = nparray.median()
 
                 # Standard Deviation
-
-                # Interquartile range
+                standarddev = np.std(nparray)
 
                 # Upper Quartile
 
-                # Lower Quartile
 
-                # Total No. Responses
+                # Lower Quartile / 1st Quartile
+                Q1 = np.median(data[:10])
+                print("Q1 : ", Q1)
+                print("Q2 quantile of arr : ", np.quantile(arr, .50))
+                print("Q1 quantile of arr : ", np.quantile(arr, .25))
+                print("Q3 quantile of arr : ", np.quantile(arr, .75))
+                print("100th quantile of arr : ", np.quantile(arr, .1))
+
+                # Interquartile range
 
                 ## SAVE THE CALCULATED DATA
 
@@ -607,6 +629,8 @@ class MyApp(App):
     def build(self):
         self.icon = 'Survey Scan Logo.png'
         self.title = 'Survey Scan'
+        Window.left = 420
+        Window.top = 250
         return self.sm
 
 #error class
