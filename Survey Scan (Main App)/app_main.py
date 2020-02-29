@@ -12,6 +12,7 @@ try:
     import os
     import operator
     import statistics
+    from scipy import stats
     from functools import partial
     from threading import Thread
     from os import listdir
@@ -294,7 +295,7 @@ class Second(Screen):
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
             frequency = {}
-            max = min = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
+            maxval = minval = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
             if question.type == "Open Ended":
                 polarityarray = []
                 for response in question.data:
@@ -319,7 +320,7 @@ class Second(Screen):
                 totalresponses = len(polarityarray)
 
                 ## NUMPY ARRAY FOR STATISTIC VALUES
-                nparray = np.array([frequency[k] for k in frequency])
+                nparray = np.array([value for subarray in polarityarray for value in subarray])
 
                 # Mean/Average
                 totalvalue = 0
@@ -334,68 +335,81 @@ class Second(Screen):
                     pass
 
                 # Mode
-                mode = nparray.mean()
-                # mode = max(frequency.iteritems(), key=operator.itemgetter(1))[0]
+                mode = stats.mode(nparray)
 
                 # Median
-                median = nparray.median()
+                median = np.median(nparray)
 
                 # Standard Deviation
                 standarddev = np.std(nparray)
 
                 # Upper Quartile
-
+                uq = np.median(nparray[10:])
 
                 # Lower Quartile / 1st Quartile
-                Q1 = np.median(data[:10])
-                print("Q1 : ", Q1)
-                print("Q2 quantile of arr : ", np.quantile(arr, .50))
-                print("Q1 quantile of arr : ", np.quantile(arr, .25))
-                print("Q3 quantile of arr : ", np.quantile(arr, .75))
-                print("100th quantile of arr : ", np.quantile(arr, .1))
+                lq = np.median(nparray[:10])
 
                 # Interquartile range
+                iqr = abs(uq-lq)
+
+                # Minimum and Maximum
+                minval = min(nparray)
+                maxval = max(nparray)
 
                 ## SAVE THE CALCULATED DATA
-
+                print(nparray)
+                print(minval, maxval, iqr, lq, uq, standarddev, median, mean)
 
             else: # If NOT OPEN ENDED
                 ## Normal Data Processing
                 ## DATA HANDLING ##
                 ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
-                # totalresponses = len(question.data)
-                # for answer in question.data:
-                #     if str(answer) in frequency.keys():
-                #         frequency[str(answer)] += 1
-                #     else:
-                #         frequency[str(answer)] = 1
-                #
-                # # Statistics Calculation and Evaluation
-                # # Standard Deviation
-                # # standarddev = statistics.stdev(question.data)
-                #
-                # # Minimum
-                # # min = min(frequency.keys(), key=(lambda k: str(frequency[k])))
-                # # print(min)
-                #
-                # # Maximum
-                # # max = max(frequency.keys(), key=(lambda k: str(frequency[k])))
-                # # print(max)
-                #
-                # # Mean
-                # print(totalresponses)
-                # print(frequency)
-                # #mean = sum(frequency)/int(totalresponses)
-                #
-                # # Upper Quartile
-                # uq = ""
-                #
-                # # Lower Quartile
-                # lq = ""
-                #
-                # # Interquartile range
-                # iqr = ""
-                pass
+                for response in question.data:
+                    temp = []
+                # Total No. Responses
+                totalresponses = len(polarityarray)
+
+                ## NUMPY ARRAY FOR STATISTIC VALUES
+                nparray = np.array([value for subarray in polarityarray for value in subarray])
+
+                # Mean/Average
+                totalvalue = 0
+                for sentiset in polarityarray:
+                    for subsentiment in sentiset:
+                        totalvalue += subsentiment
+                try:
+                    mean = totalvalue/totalresponses
+                except ZeroDivisionError:
+                    ## RAISE ERROR
+                    mean = "ERROR, DIVISION BY ZERO"
+                    pass
+
+                # Mode
+                mode = stats.mode(nparray)
+
+                # Median
+                median = np.median(nparray)
+
+                # Standard Deviation
+                standarddev = np.std(nparray)
+
+                # Upper Quartile
+                uq = np.median(nparray[10:])
+
+                # Lower Quartile / 1st Quartile
+                lq = np.median(nparray[:10])
+
+                # Interquartile range
+                iqr = abs(uq-lq)
+
+                # Minimum and Maximum
+                minval = min(nparray)
+                maxval = max(nparray)
+
+                ## SAVE THE CALCULATED DATA
+                print(nparray)
+                print(minval, maxval, iqr, lq, uq, standarddev, median, mean)
+
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
