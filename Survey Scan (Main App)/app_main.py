@@ -149,18 +149,17 @@ class First(Screen):
                             if question.lower() == restricted.lower():
                                 isInvalid = True
                                 break
-                        for response in list(surveyfile[question]):
-                            try:
-                                print(str(response).lower())
-                                if str(response).lower == "nil" or str(response) == "": #or math.isnan(int(response))
-                                    print('ran')
-                                    print(response)
-                                    surveyfile[question].remove(response)
-                            except:
-                                print("")
                         if not isInvalid:
-                            print(list(surveyfile[question]))
                             questioninfo.append(Question(question, list(surveyfile[question]),''))
+                    # REMOVING UNWANTED VALUES
+                    for validquestiondata in questioninfo:
+                        print("RAN")
+                        for response in validquestiondata.data:
+                            print(str(response).lower())
+                            print(str(response).lower() == 'nil')
+                            if str(response).strip().lower() == "nil" or str(response) == "" or (type(response) == float and response == math.nan):
+                                validquestiondata.data.remove(response)
+
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
                     global toggle_states
@@ -283,8 +282,7 @@ class Second(Screen):
                     temp = []
                     ## Advanced Data Processing
                     # Statistics Calculation (Minimum Sentiment, Maximum Sentiment, Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
-                    print(response)
-                    text = TextBlob(response)
+                    text = TextBlob(str(response))
                     # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
                     for item in text.tags:
                         if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
@@ -300,7 +298,9 @@ class Second(Screen):
 
 
                 # Mean/Average
-                mean = sum(polarityarray)/totalresponses
+                #print(sum(polarityarray))
+                #print(totalresponses)
+                #mean = sum(polarityarray)/totalresponses
 
                 # Mode
 
