@@ -339,22 +339,20 @@ class Second(Screen):
                 ## NUMPY ARRAY FOR STATISTIC VALUES
                 nparray = np.array([value for subarray in polarityarray for value in subarray])
 
-                # Mean/Average
+                # Mean/Average InitConfigs
                 totalvalue = 0
                 for sentiset in polarityarray:
                     for subsentiment in sentiset:
                         totalvalue += subsentiment
                 try:
-                    question.mean = totalvalue/totalresponses
-
                     # Mode
                     question.mode = stats.mode(nparray)
 
+                    # Mean
+                    question.mean = totalvalue/totalresponses
+
                     # Median
                     question.median = np.median(nparray)
-
-                    # Standard Deviation
-                    question.standarddev = np.std(nparray)
 
                     # Upper Quartile
                     question.uq = np.median(nparray[10:])
@@ -365,13 +363,16 @@ class Second(Screen):
                     # Interquartile range
                     question.iqr = abs(uq-lq)
 
+                    # Standard Deviation
+                    question.standarddev = np.std(nparray)
+
                     # Minimum and Maximum
                     question.minval = min(nparray)
                     question.maxval = max(nparray)
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
-                    mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
+                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
@@ -392,26 +393,22 @@ class Second(Screen):
                         frequency[str(response)] += 1
                     else:
                         frequency[str(response)] = 1
-
-                # Total No. Responses
-                question.totalresponses = len(question.data)
-
-                ## NUMPY ARRAY FOR STATISTIC VALUES
-                nparray = np.array([value for value in question.data])
-
                 try:
-                    # Mean
-                    totalvalue = sum([int(x) for x in question.data])
-                    question.mean = totalvalue/totalresponses
+                    # Total No. Responses
+                    question.totalresponses = len(question.data)
+
+                    ## NUMPY ARRAY FOR STATISTIC VALUES
+                    nparray = np.array([value for value in question.data])
 
                     # Mode
                     question.mode = stats.mode(nparray)
 
+                    # Mean
+                    totalvalue = sum([int(x) for x in question.data])
+                    question.mean = totalvalue/totalresponses
+
                     # Median
                     question.median = np.median(nparray)
-
-                    # Standard Deviation
-                    question.standarddev = np.std(nparray)
 
                     # Upper Quartile
                     question.uq = np.median(nparray[10:])
@@ -421,10 +418,16 @@ class Second(Screen):
 
                     # Interquartile range
                     question.iqr = abs(uq-lq)
+                    
+                    # Standard Deviation
+                    question.standarddev = np.std(nparray)
 
                     # Minimum and Maximum
                     question.minval = min(nparray)
                     question.maxval = max(nparray)
+
+                    # Frequency Table
+                    question.freqdata = frequency
 
                 except ValueError:
                     ## RAISE ERROR
@@ -434,11 +437,12 @@ class Second(Screen):
                         dialog = NoTitleDialog()
                         dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
                         dialog.open()
+                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
                     pass
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
-                    mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
+                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
@@ -613,13 +617,14 @@ class Pie_Chart(BoxLayout):
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
 
-        recipe = ["375 g flour",
-                  "75 g sugar",
-                  "250 g butter",
-                  "300 g berries"] # Dummy Data
-
-        data = [float(x.split()[0]) for x in recipe]
-        ingredients = [x.split()[-1] for x in recipe]
+        recipe = selectedButton.freqdata
+        # recipe = ["375 g flour",
+        #           "75 g sugar",
+        #           "250 g butter",
+        #           "300 g berries"] # Dummy Data
+        print(selectedButton.freqdata)
+        data = [recipe[x] for x in recipe]
+        ingredients = [recipe.keys()]
 
 
         def func(pct, allvals):
@@ -631,13 +636,13 @@ class Pie_Chart(BoxLayout):
                                           textprops=dict(color="w"))
 
         ax.legend(wedges, ingredients,
-                  title="Ingredients",
+                  title="Responses",
                   loc="center left",
                   bbox_to_anchor=(1, 0, 0.5, 1))
 
         plt.setp(autotexts, size=20, weight="bold")
 
-        ax.set_title("Matplotlib bakery: A pie")
+        ax.set_title("Percentage of Responses")
         ax.autoscale(enable=True)
 
 ## Add Pie Chart to Self
