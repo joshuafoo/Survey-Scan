@@ -250,7 +250,9 @@ class First(Screen):
             except Error as e:
                 self.err.text = str(e)
                 self.err.color = [1, .8, .8, 1] # Make error text visible
-            #except:pass
+                Window.left = 420
+                Window.top = 250
+            except:pass
 
         btn.bind(on_press=on_button)
 
@@ -631,36 +633,30 @@ class Pie_Chart(BoxLayout):
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
 
-        recipe = selectedButton.freqdata
-        # recipe = ["375 g flour",
-        #           "75 g sugar",
-        #           "250 g butter",
-        #           "300 g berries"] # Dummy Data
-        print("PRINTINGS")
-        print(selectedButton.freqdata)
-        data = [recipe[x] for x in recipe]
-        ingredients = [recipe.keys()]
-
+        frequencyarr = selectedButton.freqdata
+        data = [frequencyarr[x] for x in frequencyarr]
+        keys = [str(x) for x in frequencyarr.keys()]
+        global index
+        index = 0
 
         def func(pct, allvals):
-            absolute = int(pct/100.*np.sum(allvals))
-            return "{:.1f}%\n({:d} g)".format(pct, absolute)
-
+            global index
+            absolute = data[index]  # int(math.ceil(pct/100.*np.sum(allvals)))
+            index += 1
+            return "{:.1f}%\n({} responses)".format(pct, absolute)
 
         wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
                                           textprops=dict(color="w"))
 
-        ax.legend(wedges, ingredients,
+        ax.legend(wedges, keys,
                   title="Responses",
-                  loc="center left",
+                  loc="center right",
                   bbox_to_anchor=(1, 0, 0.5, 1))
 
         plt.setp(autotexts, size=20, weight="bold")
-
+        # plt.subplots_adjust(left=0.0, bottom=0.1, right=0.45)
         ax.set_title("Percentage of Responses")
         ax.autoscale(enable=True)
-
-## Add Pie Chart to Self
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 class Bar_Chart(BoxLayout):
