@@ -13,15 +13,15 @@ try:
     from threading import Thread
     from os import listdir
     from os.path import isfile, join
-    
-    #External libraries 
+
+    #External libraries
     import pandas as pd
     import matplotlib.pyplot as plt
     import numpy as np
     from scipy import stats
     from textblob import TextBlob
     import kivy
-    
+
     #have to set config before other kivy pakages are imported
     from kivy.config import Config
     Config.set('graphics', 'resizable', False)
@@ -29,7 +29,7 @@ try:
     Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
     #kivy pakages
-    
+
     from kivy.app import App
     from kivy.core.window import Window
     from kivy.core.text import FontContextManager as FCM
@@ -304,6 +304,7 @@ class Second(Screen):
     def export(self): # When export data button is clicked
         global directstate
         global questioninfo
+        ZDEAlert, OEAlert = False, False
         ## DATA HANDLING ##
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
@@ -369,9 +370,11 @@ class Second(Screen):
                 except ZeroDivisionError:
                     ## RAISE ERROR
                     mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
-                    dialog = NoTitleDialog()
-                    dialog.label_text = "No Responses were found for this question. Statistics will not be shown for this question. "
-                    dialog.open()
+                    if ZDEAlert == False:
+                        ZDEAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                        dialog.open()
                     pass
 
                 ## SAVE THE CALCULATED DATA
@@ -424,17 +427,21 @@ class Second(Screen):
                 except ValueError:
                     ## RAISE ERROR
                     mean = "NA"
-                    dialog = NoTitleDialog()
-                    dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
-                    dialog.open()
+                    if OEAlert == False:
+                        OEAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                        dialog.open()
                     pass
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
                     mean = mode = median = standarddev = uq = lq = iqr = minval = maxval = "No Responses Obtained"
-                    dialog = NoTitleDialog()
-                    dialog.label_text = "No Responses were found for this question. Statistics will not be shown for this question. "
-                    dialog.open()
+                    if ZDEAlert == False:
+                        ZDEAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                        dialog.open()
                     pass
 
                 ## SAVE THE CALCULATED DATA
@@ -478,9 +485,10 @@ class third(Screen):
             add['question_type'] = arr[1][i]
             data.append(add)
         root.get_screen('third').ids.rv.data = data # set data
-        
+
     def save(self):# Save button pressed
         print("Save to file enter logic here")
+        MyApp.get_running_app().stop() # STOPS APPLICATION
 
     def on_enter(self):
         Window.size = (950, 700) # Set size of window after transtion to this screen
@@ -509,7 +517,7 @@ class Item2(FloatLayout):
         # Define variables
         self.array = ["Statistics","Pie Chart","Bar Chart","Anomalies"]
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
-           
+
     def fire_popup(self,name,question_type):
         ## Creates popup widget ##
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
