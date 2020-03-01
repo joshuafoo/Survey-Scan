@@ -72,12 +72,12 @@
     title: ""                 # <<<<<<<<
     separator_height: 0       # <<<<<<<<
     size_hint: 0.6, 0.4
-    #size: 400, 200
+    label_text:'init value'
 
     BoxLayout:
         orientation: "vertical"
         Label:
-            text: "Are you sure you want to exit?"
+            text: root.label_text
         BoxLayout:
             size_hint_y: 0.3
             Button:
@@ -158,7 +158,7 @@
         text_size: self.size
         halign: 'left'
         valign: 'middle'
-        on_release: root.fire_popup(root.name)
+        on_release: root.fire_popup(root.name,root.question_type)
     Label:
         text_size: self.size
         size_hint:(0.89, 0.3)
@@ -216,7 +216,7 @@
                 hint_text:" Search"
                 font_size: 35
                 multiline:False
-                on_text: print("Search Bar Text: ",self.text)
+                on_text: root.search_bar_changed(self.text)
 
         Questionlist:
             id:rv
