@@ -192,6 +192,8 @@ class First(Screen):
                             except: pass
                     if len(questioninfo) == 0:
                         raise Error("Please Select a valid .csv file")
+                    else:
+                        selectedButton = questioninfo[0]
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
                     global toggle_states
@@ -695,15 +697,16 @@ class Statistics(StackLayout):
 
         ## Create Scrollable Label
         global selectedButton
-        print(selectedButton)
         lmode = ''
         question = selectedButton
-        for smode in question.mode:
-            lmode += str(smode) + ', '
+        for index, smode in enumerate(question.mode):
+            lmode += '\"' + str(smode) + '\"'
+            if index != len(question.mode)-2:
+                lmode += ', '
 
         long_text = """\
         Mean/Average: {}
-        Mode: {}
+        Mode(s): {}
         Median: {}
         Standard Deviation: {}
         Interquartile Range: {}
