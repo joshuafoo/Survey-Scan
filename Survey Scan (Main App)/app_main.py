@@ -346,7 +346,7 @@ class Second(Screen):
                         totalvalue += subsentiment
                 try:
                     # Mode
-                    question.mode = stats.mode(nparray)
+                    question.mode = stats.mode(nparray)[0]
 
                     # Mean
                     question.mean = totalvalue/totalresponses
@@ -372,6 +372,8 @@ class Second(Screen):
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
+                    print("ER0")
+                    print(question.name)
                     question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
                     if ZDEAlert == False:
                         ZDEAlert = True
@@ -401,7 +403,7 @@ class Second(Screen):
                     nparray = np.array([value for value in question.data])
 
                     # Mode
-                    question.mode = stats.mode(nparray)
+                    question.mode = stats.mode(nparray)[0]
 
                     # Mean
                     totalvalue = sum([int(x) for x in question.data])
@@ -418,7 +420,7 @@ class Second(Screen):
 
                     # Interquartile range
                     question.iqr = abs(uq-lq)
-                    
+
                     # Standard Deviation
                     question.standarddev = np.std(nparray)
 
@@ -431,6 +433,8 @@ class Second(Screen):
 
                 except ValueError:
                     ## RAISE ERROR
+                    print(question.totalresponses, question.mode[0])
+                    print(question.name)
                     question.mean = "NA"
                     if OEAlert == False:
                         OEAlert = True
@@ -442,6 +446,8 @@ class Second(Screen):
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
+                    print("ER2")
+                    print(question.name)
                     question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
                     if ZDEAlert == False:
                         ZDEAlert = True
