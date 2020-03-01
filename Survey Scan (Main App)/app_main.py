@@ -3,21 +3,33 @@
 
 ### Try Importing All Required Packages ###
 try:
-    import kivy
-    import pandas as pd
+    #python pre-installed libraries
     import math
-    import matplotlib.pyplot as plt
-    import numpy as np
     import sys
     import os
     import operator
     import statistics
-    from scipy import stats
     from functools import partial
     from threading import Thread
     from os import listdir
     from os.path import isfile, join
+    
+    #External libraries 
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from scipy import stats
     from textblob import TextBlob
+    import kivy
+    
+    #have to set config before other kivy pakages are imported
+    from kivy.config import Config
+    Config.set('graphics', 'resizable', False)
+    Config.set('graphics', 'default_font','AvenirNext-Regular')
+    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
+    #kivy pakages
+    
     from kivy.app import App
     from kivy.core.window import Window
     from kivy.core.text import FontContextManager as FCM
@@ -39,10 +51,7 @@ try:
     from kivy.uix.togglebutton import ToggleButton
     from kivy.uix.spinner import Spinner
     from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, NoTransition
-    from kivy.config import Config
-    Config.set('graphics', 'default_font','AvenirNext-Regular')
-    Config.set('graphics', 'resizable', False)
-    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
 except ImportError:
     raise ImportError("Some Packages were not installed properly. Please install them and try again")
 
@@ -445,6 +454,31 @@ class Second(Screen):
         print(filepath)
 
 class third(Screen):
+    def search(self,arr,text,state_arr):
+        result = []
+        state_result = []
+        text = text.lower()
+        for i,item in enumerate(arr):
+            if(text in item.lower()):
+                result.append(item)
+                state_result.append(state_arr[i])
+        return [result,state_result]
+
+
+    def search_bar_changed(self,text):
+        global questioninfo
+        global directstate
+        arr = self.search([str(item.name) for item in questioninfo],text,directstate)
+        root = App.get_running_app().root # Scenemanger
+        data=[]
+        for i, item in enumerate(arr[0]):
+            add = {}
+            add['name'] = str(item)
+            add['row_count'] = str(i)
+            add['question_type'] = arr[1][i]
+            data.append(add)
+        root.get_screen('third').ids.rv.data = data # set data
+        
     def save(self):# Save button pressed
         print("Save to file enter logic here")
 
@@ -475,8 +509,8 @@ class Item2(FloatLayout):
         # Define variables
         self.array = ["Statistics","Pie Chart","Bar Chart","Anomalies"]
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
-
-    def fire_popup(self,name):
+           
+    def fire_popup(self,name,question_type):
         ## Creates popup widget ##
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
