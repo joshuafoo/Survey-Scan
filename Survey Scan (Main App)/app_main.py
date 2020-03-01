@@ -190,7 +190,8 @@ class First(Screen):
                                 if str(response).strip().lower() == "nil" or str(response) == "" or (type(response) == float and response == math.nan):
                                     validquestiondata.data.remove(response)
                             except: pass
-
+                    if len(questioninfo) == 0:
+                        raise Error("Please Select a valid .csv file")
                     ## ANALYSING OF DATA ##
                     # TOGGLE STATES MODIFICATION
                     global toggle_states
@@ -308,6 +309,11 @@ class Second(Screen):
         global questioninfo
         ZDEAlert, OEAlert = False, False
         ## DATA HANDLING ##
+        global selectedButton
+        try:
+            selectedButton = questioninfo[0]
+        except:
+            pass
         for index, question in enumerate(questioninfo):
             question.type = directstate[index]
             frequency = {}
@@ -682,22 +688,31 @@ class ScrollableLabel(ScrollView):
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
-## Set Constraints of view ##
+        ## Set Constraints of view ##
         self.orientation = "tb-lr" # FORMAT: Left Right Top Bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
-## Create Scrollable Label
+        ## Create Scrollable Label
+        global selectedButton
+        print(selectedButton)
+        lmode = ''
+        question = selectedButton
+        for smode in question.mode:
+            lmode += str(smode) + ', '
+
         long_text = """\
-Mean/Average: {}
-Mode: {}
-Median: {}
-Standard Deviation: {}
-Interquartile Range: {}
-Upper Quartile: {}
-Lower Quartile: {}
-Total No. Responses: {}
-""".format('1','1','1','1','1','1','1','1')
+        Mean/Average: {}
+        Mode: {}
+        Median: {}
+        Standard Deviation: {}
+        Interquartile Range: {}
+        Upper Quartile: {}
+        Lower Quartile: {}
+        Total No. Responses: {}
+        Lowest Valued Response(s): {}
+        Highest Valued Response(s): {}
+        """.format(question.mean,lmode,question.median,question.standarddev,question.iqr,question.uq,question.lq, question.totalresponses, question.minval, question.maxval)
 
         l = ScrollableLabel(text=long_text)
 
