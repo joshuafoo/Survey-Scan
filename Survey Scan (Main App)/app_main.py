@@ -382,7 +382,7 @@ class Second(Screen):
                     ## RAISE ERROR
                     print("ER0")
                     print(question.name)
-                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
+                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
@@ -413,6 +413,9 @@ class Second(Screen):
                     # Mode
                     question.mode = stats.mode(nparray)[0]
 
+                    # Frequency Table
+                    question.freqdata = frequency
+
                     # Mean
                     totalvalue = sum([int(x) for x in question.data])
                     question.mean = totalvalue/totalresponses
@@ -436,14 +439,11 @@ class Second(Screen):
                     question.minval = min(nparray)
                     question.maxval = max(nparray)
 
-                    # Frequency Table
-                    question.freqdata = frequency
-
                 except ValueError:
                     ## RAISE ERROR
                     print(question.totalresponses, question.mode[0])
                     print(question.name)
-                    question.mean = "NA"
+                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
                     if OEAlert == False:
                         OEAlert = True
                         dialog = NoTitleDialog()
@@ -456,7 +456,7 @@ class Second(Screen):
                     ## RAISE ERROR
                     print("ER2")
                     print(question.name)
-                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "No Responses Obtained"
+                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
@@ -636,6 +636,7 @@ class Pie_Chart(BoxLayout):
         #           "75 g sugar",
         #           "250 g butter",
         #           "300 g berries"] # Dummy Data
+        print("PRINTINGS")
         print(selectedButton.freqdata)
         data = [recipe[x] for x in recipe]
         ingredients = [recipe.keys()]
@@ -700,8 +701,11 @@ class Statistics(StackLayout):
         lmode = ''
         question = selectedButton
         for index, smode in enumerate(question.mode):
-            lmode += '\"' + str(smode) + '\"'
-            if index != len(question.mode)-2:
+            try:
+                lmode += str(int(smode))
+            except:
+                lmode += '\"' + str(smode) + '\"'
+            if index != len(question.mode)-1:
                 lmode += ', '
 
         long_text = """\
