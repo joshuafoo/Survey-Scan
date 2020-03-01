@@ -630,6 +630,8 @@ class Pie_Chart(BoxLayout):
 ## Create Pie Chart ##
 
         plt.clf() # Clear All
+        # plt.gca().axis("equal")
+        # pie = plt.pie(total, startangle=0)
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
         fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
 
@@ -651,7 +653,7 @@ class Pie_Chart(BoxLayout):
         ax.legend(wedges, keys,
                   title="Responses",
                   loc="center right",
-                  bbox_to_anchor=(1, 0, 0.5, 1))
+                  bbox_to_anchor=(0.85, 0, 0.5, 1))
 
         plt.setp(autotexts, size=20, weight="bold")
         # plt.subplots_adjust(left=0.0, bottom=0.1, right=0.45)
