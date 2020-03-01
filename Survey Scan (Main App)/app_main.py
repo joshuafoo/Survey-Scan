@@ -5,6 +5,7 @@
 try:
     #python pre-installed libraries
     import math
+    import time
     import sys
     import os
     import operator
@@ -62,16 +63,14 @@ directstate = []
 notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
 file_path = ""
 displayarr = [] # For Data Processing from Second Screen to Third Screen
+selectedButton = "NA"
 
 
 class Question:
-    def __init__(self, name, data, type):
+    def __init__(self, name, data, type, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses, anomdata, freqdata, sentidata):
         self.name = name
         self.data = data
         self.type = type
-
-class QnData:
-    def __init__(self, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses):
         self.minval = minval
         self.maxval = maxval
         self.mean = mean
@@ -82,6 +81,9 @@ class QnData:
         self.uq = uq
         self.lq = lq
         self.totalresponses = totalresponses
+        self.anomdata = anomdata
+        self.freqdata = freqdata
+        self.sentidata = sentidata
 
 ### User Interface ###
 
@@ -180,7 +182,7 @@ class First(Screen):
                                 isInvalid = True
                                 break
                         if not isInvalid:
-                            questioninfo.append(Question(question, list(surveyfile[question]),''))
+                            questioninfo.append(Question(question, list(surveyfile[question]),'', '', '', '', '', '', '', '', '', '', '', '', '', ''))
                     # REMOVING UNWANTED VALUES
                     for validquestiondata in questioninfo:
                         for response in validquestiondata.data:
@@ -343,29 +345,29 @@ class Second(Screen):
                     for subsentiment in sentiset:
                         totalvalue += subsentiment
                 try:
-                    mean = totalvalue/totalresponses
+                    question.mean = totalvalue/totalresponses
 
                     # Mode
-                    mode = stats.mode(nparray)
+                    question.mode = stats.mode(nparray)
 
                     # Median
-                    median = np.median(nparray)
+                    question.median = np.median(nparray)
 
                     # Standard Deviation
-                    standarddev = np.std(nparray)
+                    question.standarddev = np.std(nparray)
 
                     # Upper Quartile
-                    uq = np.median(nparray[10:])
+                    question.uq = np.median(nparray[10:])
 
                     # Lower Quartile / 1st Quartile
-                    lq = np.median(nparray[:10])
+                    question.lq = np.median(nparray[:10])
 
                     # Interquartile range
-                    iqr = abs(uq-lq)
+                    question.iqr = abs(uq-lq)
 
                     # Minimum and Maximum
-                    minval = min(nparray)
-                    maxval = max(nparray)
+                    question.minval = min(nparray)
+                    question.maxval = max(nparray)
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
@@ -378,8 +380,8 @@ class Second(Screen):
                     pass
 
                 ## SAVE THE CALCULATED DATA
-                temp = QnData(minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses)
-                displayarr.append(temp)
+                question.freqdata = frequency
+                question.sentidata = polarityarray
 
             else: # If NOT OPEN ENDED
                 ## Normal Data Processing
@@ -392,7 +394,7 @@ class Second(Screen):
                         frequency[str(response)] = 1
 
                 # Total No. Responses
-                totalresponses = len(question.data)
+                question.totalresponses = len(question.data)
 
                 ## NUMPY ARRAY FOR STATISTIC VALUES
                 nparray = np.array([value for value in question.data])
@@ -400,33 +402,33 @@ class Second(Screen):
                 try:
                     # Mean
                     totalvalue = sum([int(x) for x in question.data])
-                    mean = totalvalue/totalresponses
+                    question.mean = totalvalue/totalresponses
 
                     # Mode
-                    mode = stats.mode(nparray)
+                    question.mode = stats.mode(nparray)
 
                     # Median
-                    median = np.median(nparray)
+                    question.median = np.median(nparray)
 
                     # Standard Deviation
-                    standarddev = np.std(nparray)
+                    question.standarddev = np.std(nparray)
 
                     # Upper Quartile
-                    uq = np.median(nparray[10:])
+                    question.uq = np.median(nparray[10:])
 
                     # Lower Quartile / 1st Quartile
-                    lq = np.median(nparray[:10])
+                    question.lq = np.median(nparray[:10])
 
                     # Interquartile range
-                    iqr = abs(uq-lq)
+                    question.iqr = abs(uq-lq)
 
                     # Minimum and Maximum
-                    minval = min(nparray)
-                    maxval = max(nparray)
+                    question.minval = min(nparray)
+                    question.maxval = max(nparray)
 
                 except ValueError:
                     ## RAISE ERROR
-                    mean = "NA"
+                    question.mean = "NA"
                     if OEAlert == False:
                         OEAlert = True
                         dialog = NoTitleDialog()
@@ -445,13 +447,12 @@ class Second(Screen):
                     pass
 
                 ## SAVE THE CALCULATED DATA
-                temp = QnData(minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses)
-                displayarr.append(temp)
+                #displayarr.append(temp)
 
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
-        App.get_running_app().stop()
+        MyApp.get_running_app().stop()
 
     def on_enter(self):
         Window.size = (950, 700) # Set size of window after transtion to this screen
@@ -487,7 +488,6 @@ class third(Screen):
         root.get_screen('third').ids.rv.data = data # set data
 
     def save(self):# Save button pressed
-        print("Save to file enter logic here")
         MyApp.get_running_app().stop() # STOPS APPLICATION
 
     def on_enter(self):
@@ -519,6 +519,12 @@ class Item2(FloatLayout):
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
 
     def fire_popup(self,name,question_type):
+        ## Set Button Selected ##
+        global selectedButton
+        for item in questioninfo:
+            if str(item.name) == str(name):
+                selectedButton = item
+
         ## Creates popup widget ##
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
         pops = MyPopup()
@@ -541,14 +547,12 @@ class Item2(FloatLayout):
         # Toggle button events
         def change_type(name,foo):
             # Unloads previous tab and load new tab
-            plt.close()# Close mathplot figure
+            plt.close() # Close mathplot figure
             Fl.remove_widget(self.current_segement)
             self.current_segement = globals()[name.replace(" ", "_")]()
             Fl.add_widget(self.current_segement)
-
             Fl.remove_widget(btn)
             Fl.add_widget(btn)
-            print(name + " Selected") # NOTE: For Debug Purposes
 
         # Setup toggle buttons
         toggle_arra = []
@@ -563,7 +567,6 @@ class Item2(FloatLayout):
             Bl.add_widget(Tb)
 
         toggle_arra[0].state = "down" # Set first toggle button to be default selected
-
 
         # "Dismiss" button
         btn = Button(text ='Dismiss',
@@ -589,7 +592,8 @@ class Anomalies(StackLayout):
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
-        long_text = """There is a lot of data anomalies.There is something wong."""
+
+        long_text = """{}""".format(selectedButton.anomdata)
 
         l = ScrollableLabel(text=long_text)
 
