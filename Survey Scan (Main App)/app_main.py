@@ -658,7 +658,7 @@ class Anomalies(StackLayout):
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Pie_Chart, self).__init__(**kwargs)
-        self.size_hint = (0.9, 0.9)
+        self.size_hint = (0.92, 0.9)
         self.pos_hint ={'center_y': 0.45, 'center_x': 0.5}
 
 ## Create Pie Chart ##
@@ -667,7 +667,7 @@ class Pie_Chart(BoxLayout):
         # plt.gca().axis("equal")
         # pie = plt.pie(total, startangle=0)
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
-        fig, ax = plt.subplots(figsize=(8, 5), subplot_kw=dict(aspect="equal"))
+        fig, ax = plt.subplots(figsize=(100, 5), subplot_kw=dict(aspect="equal"))
 
         frequencyarr = selectedButton.freqdata
         data = [frequencyarr[x] for x in frequencyarr]
@@ -686,11 +686,10 @@ class Pie_Chart(BoxLayout):
 
         ax.legend(wedges, keys,
                   title="Responses",
-                  loc="center right",
-                  bbox_to_anchor=(0.85, 0, 0.5, 1))
+                  bbox_to_anchor=(1.01, 1), loc='upper left', ncol=1)
 
         plt.setp(autotexts, size=20, weight="bold")
-        # plt.subplots_adjust(left=0.0, bottom=0.1, right=0.45)
+        plt.subplots_adjust(left=0.0, bottom=0.1, right=0.8)
         ax.set_title("Percentage of Responses")
         ax.autoscale(enable=True)
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
