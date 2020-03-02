@@ -94,8 +94,8 @@ def truncate(text,num_char):
     else:
         return text
 """
-    
-    
+
+
 class NoTitleDialog(Popup): # ALERT CLASS
     # e.g to show an alert with message "WHY" and a ok button, call
     #dialog = NoTitleDialog()
@@ -109,7 +109,7 @@ class NoTitleDialog(Popup): # ALERT CLASS
 class First(Screen):
     def on_enter(self):
         Window.size = (600, 200)
-        
+
     def __init__(self, **kwargs):
         super(First, self).__init__(**kwargs)
         ## Creating UI Elements ##
@@ -121,7 +121,7 @@ class First(Screen):
             text="",
             background_normal="reload_sprite.png",
             background_down="reload_sprite_2.png",
-            pos_hint ={'center_y': .65, 'center_x': .05},size_hint = (.07, .21))        
+            pos_hint ={'center_y': .65, 'center_x': .05},size_hint = (.07, .21))
 
         # Creating "Enter file name" label
         l = Label(
@@ -149,17 +149,17 @@ class First(Screen):
         # If .csv files are not found in directory, display error
         if(len(self.files)== 0):
             self.files = ["No .csv files found in directory"]
-        
+
 
         # Truncate all values that exceed spinner, display new values
         self.modfiles = self.files[::] # Create new instance of files called "modfiles"
-        
+
         for i, item in enumerate(self.modfiles):
             if(len(item) > 40):
                 self.modfiles[i] = item[:40] + "..."
         print(self.files)
-        
-        #Create spinner        
+
+        #Create spinner
         self.spinner = Spinner(
             text="Select File",
             values=set(self.modfiles),
@@ -277,7 +277,7 @@ class First(Screen):
             except Exception:
                 print("Something went wrong,this is the error")
                 traceback.print_exc()
-            
+
         btn.bind(on_press=on_button)
 
         def reload_spinner(instance):
@@ -304,7 +304,7 @@ class First(Screen):
             self.spinner.values = set(self.modfiles)
 
         reload_btn.bind(on_press=reload_spinner)
-            
+
 
         ## Add widgets to screen ##
         Fl.add_widget(btn)
@@ -459,6 +459,7 @@ class Second(Screen):
                 try:
                     # Total No. Responses
                     question.totalresponses = len(question.data)
+                    print(question.totalresponses)
 
                     ## NUMPY ARRAY FOR STATISTIC VALUES
                     nparray = np.array([value for value in question.data])
@@ -471,41 +472,43 @@ class Second(Screen):
 
                     if question.type == "Strongly Agree/Disagree" or question.type == "Multiple-Choice":
                         currcount = 1
-                        temp = {}
+                        freq2 = {}
                         for item in frequency:
-                            temp[currcount] = frequency[item]
+                            freq2[currcount] = frequency[item]
                             currcount += 1
-                        frequency = temp
 
                         ## CALCULATE DATA FOR SPECIAL CASES
                         # Mean
-                        nparray = np.array([int(frequency[x]) for x in frequency])
-                        totalvalue = sum([int(frequency[x]) for x in frequency])
-                        mean = round(totalvalue/totalresponses)
+                        nparray = np.array([int(freq2[x]) for x in freq2.keys()])
+                        totalvalue = sum([int(freq2[x]*x) for x in freq2.keys()])
+
+                        question.mean = list(frequency.keys())[int(round(totalvalue/question.totalresponses))]
 
                         # Median
-                        median = round(np.median(nparray))
+                        print(frequency.keys())
+                        print(int(round(np.median(nparray))))
+                        question.median = list(frequency.keys())[int(round(np.median(nparray)))]
 
                         # Upper Quartile
-                        uq = round(np.median(nparray[10:]))
+                        question.uq = list(frequency.keys())[int(round(np.median(nparray[10:])))]
 
                         # Lower Quartile / 1st Quartile
-                        lq = round(np.median(nparray[:10]))
+                        question.lq = list(frequency.keys())[int(round(np.median(nparray[:10])))]
 
                         # Interquartile range
-                        iqr = round(abs(uq-lq))
+                        question.iqr = list(frequency.keys())[int(round(abs(uq-lq)))]
 
                         # Standard Deviation
-                        standarddev = np.std(nparray)
+                        question.standarddev = list(frequency.keys())[int(np.std(nparray))]
 
                         # Minimum and Maximum
-                        minval = round(min(nparray))
-                        maxval = round(max(nparray))
+                        question.minval = list(frequency.keys())[int(round(min(nparray)))]
+                        question.maxval = list(frequency.keys())[int(round(max(nparray)))]
 
                     else:
                         # Mean
                         totalvalue = sum([int(x) for x in question.data])
-                        question.mean = totalvalue/totalresponses
+                        question.mean = totalvalue/question.totalresponses
 
                         # Median
                         question.median = np.median(nparray)
@@ -527,9 +530,9 @@ class Second(Screen):
                         question.maxval = max(nparray)
 
                 except ValueError:
-                    ## RAISE ERROR
-                    print(question.totalresponses, question.mode[0])
-                    print(question.name)
+                    ## RAISE NOTIF
+                    #print(question.totalresponses, question.mode[0])
+                    #print(question.name)
                     question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
                     if OEAlert == False:
                         OEAlert = True
@@ -541,9 +544,9 @@ class Second(Screen):
 
                 except ZeroDivisionError:
                     ## RAISE ERROR
-                    print("ER2")
+                    print("ZDE2")
                     print(question.name)
-                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
+                    question.mean = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
