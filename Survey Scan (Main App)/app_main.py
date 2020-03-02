@@ -671,14 +671,20 @@ class Bar_Chart(BoxLayout):
 
 ## Create Graph ##
         plt.clf() # Clear all
-        objects = ('Python', 'C++', 'Java', 'Perl', 'Scala', 'Lisp')
+        print(selectedButton.freqdata)
+        objects = []
+        performance = []
+        for item in selectedButton.freqdata.keys():
+            objects.append(item)
+            performance.append(selectedButton.freqdata[item])
+        objects = tuple(objects)
         y_pos = np.arange(len(objects))
-        performance = [10,8,6,4,2,1]
+
 
         plt.bar(y_pos, performance, align='center', alpha=0.5)
         plt.xticks(y_pos, objects)
-        plt.ylabel('Usage')
-        plt.title('Programming language usage')
+        plt.ylabel('Responses')
+        plt.title('Amount of Responses')
 
 ## Add Graph to Self ##
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
