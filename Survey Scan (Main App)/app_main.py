@@ -705,6 +705,7 @@ class Bar_Chart(BoxLayout):
 
 ## Create Graph ##
         plt.clf() # Clear all
+        plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
         print(selectedButton.freqdata)
         objects = []
         performance = []
