@@ -418,28 +418,62 @@ class Second(Screen):
                     # Frequency Table
                     question.freqdata = frequency
 
-                    # Mean
-                    totalvalue = sum([int(x) for x in question.data])
-                    question.mean = totalvalue/totalresponses
+                    if question.type == "Strongly Agree/Disagree" or question.type == "Multiple-Choice":
+                        currcount = 1
+                        temp = {}
+                        for item in frequency:
+                            temp[currcount] = frequency[item]
+                            currcount += 1
+                        frequency = temp
 
-                    # Median
-                    question.median = np.median(nparray)
+                        ## CALCULATE DATA FOR SPECIAL CASES
+                        # Mean
+                        nparray = np.array([int(frequency[x]) for x in frequency])
+                        totalvalue = sum([int(frequency[x]) for x in frequency])
+                        mean = round(totalvalue/totalresponses)
 
-                    # Upper Quartile
-                    question.uq = np.median(nparray[10:])
+                        # Median
+                        median = round(np.median(nparray))
 
-                    # Lower Quartile / 1st Quartile
-                    question.lq = np.median(nparray[:10])
+                        # Upper Quartile
+                        uq = round(np.median(nparray[10:]))
 
-                    # Interquartile range
-                    question.iqr = abs(uq-lq)
+                        # Lower Quartile / 1st Quartile
+                        lq = round(np.median(nparray[:10]))
 
-                    # Standard Deviation
-                    question.standarddev = np.std(nparray)
+                        # Interquartile range
+                        iqr = round(abs(uq-lq))
 
-                    # Minimum and Maximum
-                    question.minval = min(nparray)
-                    question.maxval = max(nparray)
+                        # Standard Deviation
+                        standarddev = np.std(nparray)
+
+                        # Minimum and Maximum
+                        minval = round(min(nparray))
+                        maxval = round(max(nparray))
+
+                    else:
+                        # Mean
+                        totalvalue = sum([int(x) for x in question.data])
+                        question.mean = totalvalue/totalresponses
+
+                        # Median
+                        question.median = np.median(nparray)
+
+                        # Upper Quartile
+                        question.uq = np.median(nparray[10:])
+
+                        # Lower Quartile / 1st Quartile
+                        question.lq = np.median(nparray[:10])
+
+                        # Interquartile range
+                        question.iqr = abs(uq-lq)
+
+                        # Standard Deviation
+                        question.standarddev = np.std(nparray)
+
+                        # Minimum and Maximum
+                        question.minval = min(nparray)
+                        question.maxval = max(nparray)
 
                 except ValueError:
                     ## RAISE ERROR
