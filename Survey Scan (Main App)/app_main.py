@@ -14,6 +14,7 @@ try:
     from threading import Thread
     from os import listdir
     from os.path import isfile, join
+    import traceback
 
     #External libraries
     import pandas as pd
@@ -86,7 +87,15 @@ class Question:
         self.sentidata = sentidata
 
 ### User Interface ###
-
+"""
+def truncate(text,num_char):
+    if(len(text) > num_char):
+        return text[:40] + "..."
+    else:
+        return text
+"""
+    
+    
 class NoTitleDialog(Popup): # ALERT CLASS
     # e.g to show an alert with message "WHY" and a ok button, call
     #dialog = NoTitleDialog()
@@ -98,12 +107,21 @@ class NoTitleDialog(Popup): # ALERT CLASS
         self.label_text = "Error"
 
 class First(Screen):
-    def on_enter(self):Window.size = (600, 200)
+    def on_enter(self):
+        Window.size = (600, 200)
+        
     def __init__(self, **kwargs):
         super(First, self).__init__(**kwargs)
         ## Creating UI Elements ##
         # Creating Float Layout
         Fl = FloatLayout()
+
+        # Creating reload image button
+        reload_btn = Button(
+            text="",
+            background_normal="reload_sprite.png",
+            background_down="reload_sprite_2.png",
+            pos_hint ={'center_y': .65, 'center_x': .05},size_hint = (.07, .21))        
 
         # Creating "Enter file name" label
         l = Label(
@@ -118,30 +136,33 @@ class First(Screen):
             size_hint = (.3, .25),
             color=[1, .8, .8, 0])
 
-        # Create Spinner Values
+#################### Generate Spinner Values################
         cwd = os.getcwd() # Get Current Working Directory (CWD)
-        files = []
+        self.files = []
         for f in listdir(cwd):
             if isfile(join(cwd, f)):
 
                 # Check if File Extension is ".csv" (Is it a csv file?)
                 if(f.replace(" ", "")[-4:] == ".csv"):
-                    files.append(f)
-
-## NOTE: Files array contain all files with extension ".csv" (Can delete after read)
+                    self.files.append(f)
 
         # If .csv files are not found in directory, display error
-        if(len(files)== 0):
-            files = ["No .csv files found in directory"]
+        if(len(self.files)== 0):
+            self.files = ["No .csv files found in directory"]
+        
 
         # Truncate all values that exceed spinner, display new values
-        modfiles = files[::] # Create new instance of files called "modfiles"
-        for i, item in enumerate(modfiles):
+        self.modfiles = self.files[::] # Create new instance of files called "modfiles"
+        
+        for i, item in enumerate(self.modfiles):
             if(len(item) > 40):
-                modfiles[i] = item[:40] + "..."
+                self.modfiles[i] = item[:40] + "..."
+        print(self.files)
+        
+        #Create spinner        
         self.spinner = Spinner(
             text="Select File",
-            values=set(modfiles),
+            values=set(self.modfiles),
             size_hint=(.6, .2),
             pos_hint ={"center_y": .65, "center_x": .4})
 
@@ -157,10 +178,11 @@ class First(Screen):
             Window.left = 250
             Window.top = 40
             global questioninfo
+            print(self.files,self.modfiles)
             try:
                 ## NOTE: self.spinner.text will give you the value that is selected in the spinner
                 try:
-                    file = files[modfiles.index(self.spinner.text)]
+                    file = self.files[self.modfiles.index(self.spinner.text)]
                 except ValueError:
                     file = "Select File"
                 print('File Selected (via Spinner on First Screen): ', file)
@@ -252,14 +274,43 @@ class First(Screen):
                 self.err.color = [1, .8, .8, 1] # Make error text visible
                 Window.left = 420
                 Window.top = 250
-            except:pass
-
+            except Exception:
+                print("Something went wrong,this is the error")
+                traceback.print_exc()
+            
         btn.bind(on_press=on_button)
+
+        def reload_spinner(instance):
+            cwd = os.getcwd() # Get Current Working Directory (CWD)
+            self.files = []
+            for f in listdir(cwd):
+                if isfile(join(cwd, f)):
+                    # Check if File Extension is ".csv" (Is it a csv file?)
+                    if(f.replace(" ", "")[-4:] == ".csv"):
+                        self.files.append(f)
+
+            # If .csv files are not found in directory, display error
+            if(len(self.files)== 0):
+                self.files = ["No .csv files found in directory"]
+
+            # Truncate all values that exceed spinner, display new values
+            self.modfiles = self.files[::] # Create new instance of files called "modfiles"
+
+            for i, item in enumerate(self.modfiles):
+                if(len(item) > 40):
+                    self.modfiles[i] = item[:40] + "..."
+            print(self.modfiles)
+
+            self.spinner.values = set(self.modfiles)
+
+        reload_btn.bind(on_press=reload_spinner)
+            
 
         ## Add widgets to screen ##
         Fl.add_widget(btn)
         Fl.add_widget(self.spinner)
         Fl.add_widget(l)
+        Fl.add_widget(reload_btn)
         Fl.add_widget(self.err)
         self.add_widget(Fl)
 
@@ -666,7 +717,7 @@ class Pie_Chart(BoxLayout):
         plt.clf() # Clear All
         # plt.gca().axis("equal")
         # pie = plt.pie(total, startangle=0)
-        plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
+        plt.rcParams['font.size'] = 19.0 # Set Font Size of Words
         fig, ax = plt.subplots(figsize=(100, 5), subplot_kw=dict(aspect="equal"))
 
         frequencyarr = selectedButton.freqdata
@@ -686,10 +737,11 @@ class Pie_Chart(BoxLayout):
 
         ax.legend(wedges, keys,
                   title="Responses",
-                  bbox_to_anchor=(1.01, 1), loc='upper left', ncol=1)
+                  loc="center left",
+                  bbox_to_anchor=(1, 0, 0.5, 1))
 
         plt.setp(autotexts, size=20, weight="bold")
-        plt.subplots_adjust(left=0.0, bottom=0.1, right=0.8)
+        #plt.subplots_adjust(left=0.0, bottom=0.1, right=0.5)
         ax.set_title("Percentage of Responses")
         ax.autoscale(enable=True)
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
