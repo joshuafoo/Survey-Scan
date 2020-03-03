@@ -480,20 +480,20 @@ class Second(Screen):
                         ## CALCULATE DATA FOR SPECIAL CASES
                         # Mean
                         nparray = np.array([int(freq2[x]) for x in freq2.keys()])
-                        totalvalue = sum([int(freq2[x]*x) for x in freq2.keys()])
+                        fullarr = [int(freq2[x]*x) for x in freq2.keys()]
+                        totalvalue = sum(fullarr)
 
                         question.mean = list(frequency.keys())[int(round(totalvalue/question.totalresponses))]
 
                         # Median
-                        print(frequency.keys())
-                        print(int(round(np.median(nparray))))
-                        question.median = list(frequency.keys())[int(round(np.median(nparray)))]
+                        print(int(round(np.median(sorted(nparray)))))
+                        question.median = list(frequency.keys())[int(round(fullarr))] ## FIX THIS
 
                         # Upper Quartile
-                        question.uq = list(frequency.keys())[int(round(np.median(nparray[10:])))]
+                        question.uq = list(frequency.keys())[int(round(np.median(sorted(nparray)[10:])))]
 
                         # Lower Quartile / 1st Quartile
-                        question.lq = list(frequency.keys())[int(round(np.median(nparray[:10])))]
+                        question.lq = list(frequency.keys())[int(round(np.median(sorted(nparray)[:10])))]
 
                         # Interquartile range
                         question.iqr = list(frequency.keys())[int(round(abs(uq-lq)))]
@@ -553,6 +553,10 @@ class Second(Screen):
                         dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
                         dialog.open()
                     pass
+                # except IndexError:
+                #     pass
+                # except:
+                #     pass
 
                 ## SAVE THE CALCULATED DATA
                 #displayarr.append(temp)
