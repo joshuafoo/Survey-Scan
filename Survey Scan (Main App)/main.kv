@@ -168,10 +168,15 @@
         size_hint:(0.89, 0.3)
         pos_hint: {'center_x': 0.5, 'center_y': 0.3}
         markup:True
-        padding_x:40
+        padding_x:20
         halign: 'left'
         valign: 'middle'
         text: "[size=30]" + root.question_type
+    Image:
+        size_hint:(0.89, 0.3)
+        pos_hint: {'center_x': 0.9, 'center_y': 0.6}
+        source:'right_arrow.png'
+        allow_stretch: True
 
 #:import Window kivy.core.window
 <MyPopup@Popup>:
