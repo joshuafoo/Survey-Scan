@@ -3,7 +3,8 @@
 # install_surveyscan.py
 echo 
 echo Updating Pip
-python -m pip install –upgrade pip
+python -m pip install –-upgrade pip
+python3 -m pip3 install --upgrade pip3
 echo 
 echo Installing Survey Scan...
 echo 
@@ -29,7 +30,15 @@ echo Installing Numpy...
 pip install numpy
 echo Installing Scipy...
 pip install scipy
-
-echo Installation Successful.
+echo Reinstalling Everything to be safe...
+cd "$(dirname "$BASH_SOURCE")" || {
+    echo "Error getting script directory" >&2
+    exit 1
+}
+pip install -r requirements.txt
+pip3 install -r requirements.txt
+echo Installation Successful. Opening Application...
 cd Survey\ Scan\ \(Main\ App\)/
 python app_main.py
+echo Opening Window in Python 3....
+python3 app_main.py
