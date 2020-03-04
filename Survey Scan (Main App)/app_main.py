@@ -343,7 +343,7 @@ class First(Screen):
             print(self.modfiles)
 
             self.spinner.values = set(self.modfiles)
-
+``
         reload_btn.bind(on_press=reload_spinner)
 
 
