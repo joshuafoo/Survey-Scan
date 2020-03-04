@@ -222,12 +222,12 @@ class First(Screen):
                         rowisvalid = False
                         for response in validquestiondata.data:
                             try:
-                                print(response)
+                                #print(response)
                                 if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == ""  or response == [] or (type(response) == float and math.isnan(response)) : #(isinstance(response, float) and math.isnan(float(response))
-                                    print("BAD")
+                                    #print("BAD")
                                     validquestiondata.data.remove(response)
                                 else:
-                                    print("{} is normal valid".format(response))
+                                    #print("{} is normal valid".format(response))
                                     rowisvalid = True
                             except:
                                 print("{} is valid".format(response))
@@ -343,7 +343,7 @@ class First(Screen):
             print(self.modfiles)
 
             self.spinner.values = set(self.modfiles)
-``
+
         reload_btn.bind(on_press=reload_spinner)
 
 
@@ -833,16 +833,19 @@ class Anomalies(StackLayout):
 
         long_text = ""
         print(selectedButton.anomdata)
+            
         if(selectedButton.anomdata != "NA"):
             for num,i in enumerate(selectedButton.anomdata):
-                name = "Joshua"
-                index = str(i[1])
-                response = str(i[0])
-                long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
-                long_text+="\n"
+                if(selectedButton.anomdata==""):
+                    long_text = "NA"
+                else:
+                    name = "Joshua"
+                    index = str(i[1])
+                    response = str(i[0])
+                    long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
+                    long_text+="\n"
         else:
             long_text = "NA"
-        if(long_text == ""):long_text = "NA"
 
         l = ScrollableLabel(text=long_text)
 
