@@ -368,7 +368,7 @@ class Second(Screen):
     def export(self): # When export data button is clicked
         global directstate
         global questioninfo
-        ZDEAlert, OEAlert = False, False
+        ZDEAlert, OEAlert, OEMAlert = False, False, False
         ## DATA HANDLING ##
         global selectedButton
         try:
@@ -382,6 +382,11 @@ class Second(Screen):
             global displayarr
             if question.type == "Open Ended":
                 question.totalresponses = len(question.data)
+                if question.totalresponses > 10 and OEMAlert == False:
+                    OEMAlert = True
+                    dialog = NoTitleDialog()
+                    dialog.label_text = "Some Data for Open Ended Questions may be ommitted due to the large size of the data"
+                    dialog.open()
                 polarityarray = []
                 for response in question.data:
                     temp = []
@@ -598,6 +603,9 @@ class third(Screen):
         root.get_screen('third').ids.rv.data = data # set data
 
     def save(self):# Save button pressed
+        dialog = NoTitleDialog()
+        dialog.label_text = "Saving File and Exiting Application..."
+        dialog.open()
         ## SAVE FILE AS CSV ##
         csv_columns = ['Index', 'Name', 'Type', 'Minimum Value', 'Maximum Value', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Interquartile Range', 'Upper Quartile', 'Lower Quartile', 'Total Responses', 'Anomalies']
         dict_data = []
@@ -769,12 +777,12 @@ class Pie_Chart(BoxLayout):
         #remove @ entry if exists
         if("@" in default_arr):
             del default_arr["@"]
-            
-        #Limits data to max 5 
+
+        #Limits data to max 5
         sorted_arr = sorted(default_arr, key=default_arr.get, reverse=True)
         frequencyarr = {}
         count = 0
-        #others_count = 0 
+        #others_count = 0
         for i in sorted_arr:
             if(count <=5):
                 frequencyarr[i] = selectedButton.freqdata[i]
@@ -783,7 +791,7 @@ class Pie_Chart(BoxLayout):
                 #others_count+=selectedButton.freqdata[i]
         #if(len(sorted_arr)>5):
             #frequencyarr["others"] = others_count
-            
+
         data = [frequencyarr[x] for x in frequencyarr]
         keys = [str(x) for x in frequencyarr.keys()]
         global index
@@ -824,12 +832,12 @@ class Bar_Chart(BoxLayout):
         #remove @ entry if exists
         if("@" in default_arr):
             del default_arr["@"]
-            
-        #Limits data to max 5 
+
+        #Limits data to max 5
         sorted_arr = sorted(default_arr, key=default_arr.get, reverse=True)
         frequencyarr = {}
         count = 0
-        #others_count = 0 
+        #others_count = 0
         for i in sorted_arr:
             if(count <=5):
                 frequencyarr[i] = selectedButton.freqdata[i]
@@ -838,7 +846,7 @@ class Bar_Chart(BoxLayout):
                 #others_count+=selectedButton.freqdata[i]
         #if(len(sorted_arr)>5):
             #frequencyarr["others"] = others_count
-        
+
         objects = []
         performance = []
         for item in frequencyarr.keys():

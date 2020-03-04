@@ -1,0 +1,5 @@
+Index,Name,Type,Minimum Value,Maximum Value,Mean,Median,Mode,Standard Deviation,Interquartile Range,Upper Quartile,Lower Quartile,Total Responses,Anomalies
+1,I managed to follow what was taught ,Strongly Agree/Disagree,NA,NA,NA,NA,['Strongly Agree'],NA,NA,NA,NA,41,
+2,I managed to complete the work that was given ,Strongly Agree/Disagree,NA,NA,NA,NA,['Strongly Agree'],NA,NA,NA,NA,41,
+3,The pace was suitable for me ,Strongly Agree/Disagree,NA,NA,NA,NA,['Strongly Agree'],NA,NA,NA,NA,41,
+4,"What is one question you have, or one thing you want to learn?",Open Ended,-0.6666666666666666,0.625,0.044611678004535145,0.0,[0.],0.22225503250433146,0,0.0,0.0,35,
