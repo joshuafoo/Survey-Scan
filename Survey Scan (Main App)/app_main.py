@@ -261,8 +261,10 @@ class First(Screen):
                                     dataArray[str(value).lower()] = 1
                             # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
                             print(item.name)
+                            hasAppended = False
                             ## CHECK FOR STRONGLY AGREE/DISAGREE
                             if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
+                                hasAppended = True
                                 print("SA/SD")
                                 toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
                                 directstate.append("Strongly Agree/Disagree")
@@ -271,29 +273,33 @@ class First(Screen):
                                 isValidQuestion = True
                                 for value in dataArray:
                                     try:
+                                        x = 0
                                         for i in range(10):
+                                            x += 1
                                             if not(int(value) > 0 and int(value) <= 10):
                                                 isValidQuestion = False
                                                 raise TypeError()
                                     except:
-                                        break # Data is not valid type
+                                        if x < 9:
+                                            break # Data is not valid type
+                                        else:
+                                            pass
                                 if isValidQuestion:
+                                    hasAppended = True
                                     print("SCALER")
                                     toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
                                     directstate.append("Scale Rating (1 to 10)")
-                                else:
-                                    print("NOT SCALER")
-                                    pass # Not Scale Rating Question
                             ## CHECK FOR MULTIPLE CHOICE
-                            elif len(dataArray) <= 4:
-                                print("MCQ")
-                                toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
-                                directstate.append("Multiple-Choice")
-                            ## CHECK FOR OPEN ENDED
-                            else:
-                                print("OE")
-                                toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
-                                directstate.append("Open Ended")
+                            if hasAppended == False:
+                                if len(dataArray) <= 4:
+                                    print("MCQ")
+                                    toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
+                                    directstate.append("Multiple-Choice")
+                                ## CHECK FOR OPEN ENDED
+                                else:
+                                    print("OE")
+                                    toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
+                                    directstate.append("Open Ended")
 
 
                     # CHANGE SCREEN
