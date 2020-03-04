@@ -222,19 +222,21 @@ class First(Screen):
                         rowisvalid = False
                         for response in validquestiondata.data:
                             try:
-                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == "" or (type(response) == Float and math.isnan(float(response)) or response == []):
-                                    print("Bad")
+                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == ""  or response == [] or (math.isnan(response)) : #(isinstance(response, float) and math.isnan(float(response))
+                                    print("BAD")
                                     print(response)
                                     validquestiondata.data.remove(response)
                                 else:
+                                    print("{} is normal valid".format(response))
                                     rowisvalid = True
                             except:
+                                print("{} is valid".format(response))
                                 rowisvalid = True
                                 pass
                         if rowisvalid:
                             print(validquestiondata.name)
                             validquestiondata.isValidRow = True
-                            
+
                     if len(questioninfo) == 0:
                         raise Error("Please Select a valid .csv file")
                     else:
@@ -247,44 +249,45 @@ class First(Screen):
                     toggle_states = []
                     agreearray = ['agree', 'strongly agree', 'disagree', 'strongly disagree', 'neutral']
                     for item in questioninfo:
-                        dataArray = {}
-                        for value in item.data: # NOTE: Already Sorted, Remove Whitespace if There
-                            # NOTE: FOR DEBUG PURPOSES
-                            # print(str(value).lower().strip())
-                            # print(dataArray.keys())
-                            if str(value).lower().strip() in dataArray.keys():
-                                dataArray[str(value).lower().strip()] += 1
-                            else:
-                                dataArray[str(value).lower()] = 1
-                        # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
-                        ## CHECK FOR STRONGLY AGREE/DISAGREE
-                        if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
-                            toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
-                            directstate.append("Strongly Agree/Disagree")
-                        ## CHECK FOR SCALE RATING
-                        elif len(dataArray) <= 10:
-                            isValidQuestion = True
-                            for value in dataArray:
-                                for i in range(10):
-                                    try:
-                                        if not(int(value) > 0 and int(value) <= 10):
-                                            isValidQuestion = False
-                                            raise TypeError()
-                                    except:
-                                        break # Data is not valid type
-                            if isValidQuestion:
-                                toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
-                                directstate.append("Scale Rating (1 to 10)")
-                            else:
-                                pass # Not Scale Rating Question
-                        ## CHECK FOR MULTIPLE CHOICE
-                        elif len(dataArray) <= 4:
-                            toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
-                            directstate.append("Multiple-Choice")
-                        ## CHECK FOR OPEN ENDED
-                        elif len(dataArray) > 10:
-                            toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
-                            directstate.append("Open Ended")
+                        if item.isValidRow:
+                            dataArray = {}
+                            for value in item.data: # NOTE: Already Sorted, Remove Whitespace if There
+                                # NOTE: FOR DEBUG PURPOSES
+                                # print(str(value).lower().strip())
+                                # print(dataArray.keys())
+                                if str(value).lower().strip() in dataArray.keys():
+                                    dataArray[str(value).lower().strip()] += 1
+                                else:
+                                    dataArray[str(value).lower()] = 1
+                            # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
+                            ## CHECK FOR STRONGLY AGREE/DISAGREE
+                            if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
+                                toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
+                                directstate.append("Strongly Agree/Disagree")
+                            ## CHECK FOR SCALE RATING
+                            elif len(dataArray) <= 10:
+                                isValidQuestion = True
+                                for value in dataArray:
+                                    for i in range(10):
+                                        try:
+                                            if not(int(value) > 0 and int(value) <= 10):
+                                                isValidQuestion = False
+                                                raise TypeError()
+                                        except:
+                                            break # Data is not valid type
+                                if isValidQuestion:
+                                    toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
+                                    directstate.append("Scale Rating (1 to 10)")
+                                else:
+                                    pass # Not Scale Rating Question
+                            ## CHECK FOR MULTIPLE CHOICE
+                            elif len(dataArray) <= 4:
+                                toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
+                                directstate.append("Multiple-Choice")
+                            ## CHECK FOR OPEN ENDED
+                            elif len(dataArray) > 10:
+                                toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
+                                directstate.append("Open Ended")
 
                     # CHANGE SCREEN
                     self.manager.current =  "second"
@@ -362,6 +365,7 @@ class StockList(RecycleView):
         data = []
         global questioninfo
         global toggle_states
+        print(len(questioninfo))
         for i, item in enumerate(questioninfo):
             print(i, item.name)
             if item.isValidRow:
@@ -380,7 +384,7 @@ class StockList(RecycleView):
                 data.append(add)
         return data
 
-    
+
 
 class Second(Screen):
     def goback(self): # When back button is clicked
@@ -702,11 +706,11 @@ class Questionlist(RecycleView):
         data=[]
         global questioninfo
         global directstate
-        
+
         for i, item in enumerate(questioninfo):
             add = {}
             if(len(str(item.name)) >180):
-                
+
                 add['name'] = str(item.name.replace("	"," "))[:150] + "..."
             else:
                 add['name'] = str(item.name.replace("	"," "))
@@ -743,7 +747,7 @@ class Item2(FloatLayout):
             pops.title = name[:105] + "..."# Truncate name
         else:
             pops.title = name
-        
+
         pops.title_size = 40
 
         ## Create UI Elements ##
@@ -784,7 +788,7 @@ class Item2(FloatLayout):
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={'center_y': 0.05, 'center_x': .5},
                      on_press = lambda *args: pops.dismiss())
-       
+
 
         ## Add Widgets to Popup ##
         Fl.add_widget(self.current_segement)
@@ -804,8 +808,8 @@ class Anomalies(StackLayout):
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
-            
-                
+
+
         long_text = ""
         print(selectedButton.anomdata)
         if(selectedButton.anomdata != "NA"):
@@ -818,7 +822,7 @@ class Anomalies(StackLayout):
         else:
             long_text = "NA"
         if(long_text == ""):long_text = "NA"
-            
+
         l = ScrollableLabel(text=long_text)
 
         # Add scrollable label to self
