@@ -764,8 +764,25 @@ class Pie_Chart(BoxLayout):
         # pie = plt.pie(total, startangle=0)
         plt.rcParams['font.size'] = 19.0 # Set Font Size of Words
         fig, ax = plt.subplots(figsize=(100, 5), subplot_kw=dict(aspect="equal"))
-
-        frequencyarr = selectedButton.freqdata
+        default_arr = selectedButton.freqdata
+        #remove @ entry if exists
+        if("@" in default_arr):
+            del default_arr["@"]
+            
+        #Limits data to max 5 
+        sorted_arr = sorted(default_arr, key=default_arr.get, reverse=True)
+        frequencyarr = {}
+        count = 0
+        #others_count = 0 
+        for i in sorted_arr:
+            if(count <=5):
+                frequencyarr[i] = selectedButton.freqdata[i]
+                count+=1
+            #else:
+                #others_count+=selectedButton.freqdata[i]
+        #if(len(sorted_arr)>5):
+            #frequencyarr["others"] = others_count
+            
         data = [frequencyarr[x] for x in frequencyarr]
         keys = [str(x) for x in frequencyarr.keys()]
         global index
@@ -790,7 +807,6 @@ class Pie_Chart(BoxLayout):
         ax.set_title("Percentage of Responses")
         ax.autoscale(enable=True)
         self.add_widget(FigureCanvasKivyAgg(plt.gcf()))
-
 class Bar_Chart(BoxLayout):
     def __init__(self, **kwargs):
         super(Bar_Chart, self).__init__(**kwargs)
