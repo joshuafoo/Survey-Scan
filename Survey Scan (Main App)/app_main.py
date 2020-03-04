@@ -808,13 +808,16 @@ class Anomalies(StackLayout):
                 
         long_text = ""
         print(selectedButton.anomdata)
-        for num,i in enumerate(selectedButton.anomdata):
-            name = "Joshua"
-            index = str(i[1])
-            response = str(i[0])
-            long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
-            long_text+="\n"+"-"*200
-            
+        if(selectedButton.anomdata != "NA"):
+            for num,i in enumerate(selectedButton.anomdata):
+                name = "Joshua"
+                index = str(i[1])
+                response = str(i[0])
+                long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
+                long_text+="\n"
+        else:
+            long_text = "NA"
+        if(long_text == ""):long_text = "NA"
             
         l = ScrollableLabel(text=long_text)
 
