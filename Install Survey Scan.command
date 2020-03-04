@@ -3,8 +3,8 @@
 # install_surveyscan.py
 echo 
 echo Updating Pip
-python -m pip install –-upgrade pip
-python3 -m pip3 install --upgrade pip3
+pip install –-upgrade pip
+pip3 install --upgrade pip3
 echo 
 echo Installing Survey Scan...
 echo 
