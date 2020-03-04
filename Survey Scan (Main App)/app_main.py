@@ -222,9 +222,9 @@ class First(Screen):
                         rowisvalid = False
                         for response in validquestiondata.data:
                             try:
-                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == ""  or response == [] or (math.isnan(response)) : #(isinstance(response, float) and math.isnan(float(response))
+                                print(response)
+                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == ""  or response == [] or (type(response) == float and math.isnan(response)) : #(isinstance(response, float) and math.isnan(float(response))
                                     print("BAD")
-                                    print(response)
                                     validquestiondata.data.remove(response)
                                 else:
                                     print("{} is normal valid".format(response))
@@ -260,34 +260,41 @@ class First(Screen):
                                 else:
                                     dataArray[str(value).lower()] = 1
                             # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
+                            print(item.name)
                             ## CHECK FOR STRONGLY AGREE/DISAGREE
                             if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
+                                print("SA/SD")
                                 toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
                                 directstate.append("Strongly Agree/Disagree")
                             ## CHECK FOR SCALE RATING
                             elif len(dataArray) <= 10:
                                 isValidQuestion = True
                                 for value in dataArray:
-                                    for i in range(10):
-                                        try:
+                                    try:
+                                        for i in range(10):
                                             if not(int(value) > 0 and int(value) <= 10):
                                                 isValidQuestion = False
                                                 raise TypeError()
-                                        except:
-                                            break # Data is not valid type
+                                    except:
+                                        break # Data is not valid type
                                 if isValidQuestion:
+                                    print("SCALER")
                                     toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
                                     directstate.append("Scale Rating (1 to 10)")
                                 else:
+                                    print("NOT SCALER")
                                     pass # Not Scale Rating Question
                             ## CHECK FOR MULTIPLE CHOICE
                             elif len(dataArray) <= 4:
+                                print("MCQ")
                                 toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
                                 directstate.append("Multiple-Choice")
                             ## CHECK FOR OPEN ENDED
-                            elif len(dataArray) > 10:
+                            else:
+                                print("OE")
                                 toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
                                 directstate.append("Open Ended")
+
 
                     # CHANGE SCREEN
                     self.manager.current =  "second"
@@ -366,9 +373,13 @@ class StockList(RecycleView):
         global questioninfo
         global toggle_states
         print(len(questioninfo))
-        for i, item in enumerate(questioninfo):
-            print(i, item.name)
+        print(len(toggle_states))
+        print(toggle_states)
+        i = 0
+        for item in questioninfo:
             if item.isValidRow:
+                print(i, item.name)
+                print(item.isValidRow)
                 add = {}
                 #Truncate logic
                 if(len(str(item.name)) > 240):
@@ -382,6 +393,7 @@ class StockList(RecycleView):
                 add['b4state'] = toggle_states[i][3]
                 add['row_count'] = str(i)
                 data.append(add)
+                i+=1
         return data
 
 
@@ -402,154 +414,56 @@ class Second(Screen):
             selectedButton = questioninfo[0]
         except:
             pass
-        for index, question in enumerate(questioninfo):
-            question.type = directstate[index]
-            frequency = {}
-            maxval = minval = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
-            global displayarr
-            if question.type == "Open Ended":
-                question.totalresponses = len(question.data)
-                if question.totalresponses > 10 and OEMAlert == False:
-                    OEMAlert = True
-                    dialog = NoTitleDialog()
-                    dialog.label_text = "PLEASE NOTE:\nSome Data for Open Ended Questions may be ommitted due to the large size of the data"
-                    dialog.open()
-                polarityarray = []
-                for response in question.data:
-                    temp = []
-                    ## Advanced Data Processing
-                    # Statistics Calculation (Minimum Sentiment, Maximum Sentiment, Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
-                    text = TextBlob(str(response))
-                    # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
-                    for item in text.tags:
-                        if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
-                            if str(item[0]) in frequency.keys():
-                                frequency[str(item[0])] += 1
-                            else:
-                                frequency[str(item[0])] = 1
-
-                    # Conduct Sentiment Analysis on Data
-                    for sentence in text.sentences:
-                        temp.append(sentence.sentiment.polarity)
-                    polarityarray.append(temp)
-
-                # Total No. Responses
-                totalresponses = len(polarityarray)
-
-                ## NUMPY ARRAY FOR STATISTIC VALUES
-                nparray = np.array([value for subarray in polarityarray for value in subarray])
-
-                # Mean/Average InitConfigs
-                totalvalue = 0
-                for sentiset in polarityarray:
-                    for subsentiment in sentiset:
-                        totalvalue += subsentiment
-                try:
-                    # Mode
-                    question.mode = stats.mode(nparray)[0]
-
-                    # Mean
-                    question.mean = totalvalue/totalresponses
-
-                    # Median
-                    question.median = np.median(nparray)
-
-                    # Upper Quartile
-                    question.uq = np.median(nparray[10:])
-
-                    # Lower Quartile / 1st Quartile
-                    question.lq = np.median(nparray[:10])
-
-                    # Interquartile range
-                    question.iqr = abs(uq-lq)
-
-                    # Standard Deviation
-                    question.standarddev = np.std(nparray)
-
-                    # Minimum and Maximum
-                    question.minval = min(nparray)
-                    question.maxval = max(nparray)
-
-                    # Anomalies
-                    question.anomdata = find_anomalies(nparray)
-                    print(question.anomdata)
-
-                except ZeroDivisionError:
-                    ## RAISE ERROR
-                    print("ER0")
-                    print(question.name)
-                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = question.anomdata = "NA"
-                    if ZDEAlert == False:
-                        ZDEAlert = True
-                        dialog = NoTitleDialog()
-                        dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
-                        dialog.open()
-                    pass
-
-                ## SAVE THE CALCULATED DATA
-                question.freqdata = frequency
-                question.sentidata = polarityarray
-
-            else: # If NOT OPEN ENDED
-                ## Normal Data Processing
-                ## DATA HANDLING ##
-                ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
-                for response in question.data:
-                    if str(response) in frequency.keys():
-                        frequency[str(response)] += 1
-                    else:
-                        frequency[str(response)] = 1
-                try:
-                    # Total No. Responses
+        index = 0
+        for question in questioninfo:
+            if question.isValidRow:
+                question.type = directstate[index]
+                frequency = {}
+                maxval = minval = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
+                global displayarr
+                if question.type == "Open Ended":
                     question.totalresponses = len(question.data)
-                    print(question.totalresponses)
+                    if question.totalresponses > 10 and OEMAlert == False:
+                        OEMAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "PLEASE NOTE:\nSome Data for Open Ended Questions may be ommitted due to the large size of the data"
+                        dialog.open()
+                    polarityarray = []
+                    for response in question.data:
+                        temp = []
+                        ## Advanced Data Processing
+                        # Statistics Calculation (Minimum Sentiment, Maximum Sentiment, Mean/Average Sentiment, Mode Sentiment(s), Median Sentiment(s), Sentiments' Standard Deviation, Sentiments' Interquartile Range, Upper Quartile of Sentiments, Lower Quartile of Sentiments, Total No. Responses)
+                        text = TextBlob(str(response))
+                        # text = text.correct() ## EXPERIMENTAL: AUTOCORRECT FEATURE
+                        for item in text.tags:
+                            if item[1] == 'JJ' or item[1] == 'JJR' or item[1] == 'JJS':
+                                if str(item[0]) in frequency.keys():
+                                    frequency[str(item[0])] += 1
+                                else:
+                                    frequency[str(item[0])] = 1
+
+                        # Conduct Sentiment Analysis on Data
+                        for sentence in text.sentences:
+                            temp.append(sentence.sentiment.polarity)
+                        polarityarray.append(temp)
+
+                    # Total No. Responses
+                    totalresponses = len(polarityarray)
 
                     ## NUMPY ARRAY FOR STATISTIC VALUES
-                    nparray = np.array([value for value in question.data])
+                    nparray = np.array([value for subarray in polarityarray for value in subarray])
 
-                    # Mode
-                    question.mode = stats.mode(nparray)[0]
+                    # Mean/Average InitConfigs
+                    totalvalue = 0
+                    for sentiset in polarityarray:
+                        for subsentiment in sentiset:
+                            totalvalue += subsentiment
+                    try:
+                        # Mode
+                        question.mode = stats.mode(nparray)[0]
 
-                    # Frequency Table
-                    question.freqdata = frequency
-
-                    if question.type == "Strongly Agree/Disagree" or question.type == "Multiple-Choice":
-                        currcount = 1
-                        freq2 = {}
-                        for item in frequency:
-                            freq2[currcount] = frequency[item]
-                            currcount += 1
-
-                        ## CALCULATE DATA FOR SPECIAL CASES
                         # Mean
-                        nparray = np.array([int(freq2[x]) for x in freq2.keys()])
-                        totalvalue = sum([int(freq2[x]*x) for x in freq2.keys()])
-
-                        question.mean = list(frequency.keys())[int(round(totalvalue/question.totalresponses))]
-
-                        # Median
-                        question.median = list(frequency.keys())[int(round(np.median(nparray)))] ## FIX THIS: CURRENT RETURNS MEDIAN OF GIVEN ARRAY, NOT BASED ON WEIGHTED VALUES
-
-                        # Upper Quartile
-                        question.uq = list(frequency.keys())[int(round(np.median(sorted(nparray)[10:])))]
-
-                        # Lower Quartile / 1st Quartile
-                        question.lq = list(frequency.keys())[int(round(np.median(sorted(nparray)[:10])))]
-
-                        # Interquartile range
-                        question.iqr = list(frequency.keys())[int(round(abs(uq-lq)))]
-
-                        # Standard Deviation
-                        question.standarddev = list(frequency.keys())[int(np.std(nparray))]
-
-                        # Minimum and Maximum
-                        question.minval = list(frequency.keys())[int(round(min(nparray)))]
-                        question.maxval = list(frequency.keys())[int(round(max(nparray)))]
-
-                    else:
-                        # Mean
-                        totalvalue = sum([int(x) for x in question.data])
-                        question.mean = totalvalue/question.totalresponses
+                        question.mean = totalvalue/totalresponses
 
                         # Median
                         question.median = np.median(nparray)
@@ -574,46 +488,147 @@ class Second(Screen):
                         question.anomdata = find_anomalies(nparray)
                         print(question.anomdata)
 
-                except ZeroDivisionError:
-                    ## RAISE ERROR
-                    print("ZDE2")
-                    print(question.name)
-                    question.mean = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
-                    if ZDEAlert == False:
-                        ZDEAlert = True
-                        dialog = NoTitleDialog()
-                        dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
-                        dialog.open()
-                    pass
+                    except ZeroDivisionError:
+                        ## RAISE ERROR
+                        print("ER0")
+                        print(question.name)
+                        question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = question.anomdata = "NA"
+                        if ZDEAlert == False:
+                            ZDEAlert = True
+                            dialog = NoTitleDialog()
+                            dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                            dialog.open()
+                        pass
 
-                except ValueError: # ValueError or IndexError
-                    ## RAISE NOTIF
-                    #print(question.totalresponses, question.mode[0])
-                    #print(question.name)
-                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
-                    question.anomdata = "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"
-                    if OEAlert == False:
-                        OEAlert = True
-                        dialog = NoTitleDialog()
-                        dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
-                        dialog.open()
-                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
-                    pass
+                    ## SAVE THE CALCULATED DATA
+                    question.freqdata = frequency
+                    question.sentidata = polarityarray
 
-                except IndexError:
-                    ## RAISE NOTIF
-                    #print(question.totalresponses, question.mode[0])
-                    #print(question.name)
-                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = question.anomdata ="NA"
-                    if OEAlert == False:
-                        OEAlert = True
-                        dialog = NoTitleDialog()
-                        dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
-                        dialog.open()
-                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
-                    pass
-                # except:
-                #     pass
+                else: # If NOT OPEN ENDED
+                    ## Normal Data Processing
+                    ## DATA HANDLING ##
+                    ## Statistics Input (Minimum, Maximum Mean/Average, Mode, Median, Standard Deviation, Interquartile Range, Upper Quartile, Lower Quartile, Total No. Responses)
+                    for response in question.data:
+                        if str(response) in frequency.keys():
+                            frequency[str(response)] += 1
+                        else:
+                            frequency[str(response)] = 1
+                    try:
+                        # Total No. Responses
+                        question.totalresponses = len(question.data)
+                        print(question.totalresponses)
+
+                        ## NUMPY ARRAY FOR STATISTIC VALUES
+                        nparray = np.array([value for value in question.data])
+
+                        # Mode
+                        question.mode = stats.mode(nparray)[0]
+
+                        # Frequency Table
+                        question.freqdata = frequency
+
+                        if question.type == "Strongly Agree/Disagree" or question.type == "Multiple-Choice":
+                            currcount = 1
+                            freq2 = {}
+                            for item in frequency:
+                                freq2[currcount] = frequency[item]
+                                currcount += 1
+
+                            ## CALCULATE DATA FOR SPECIAL CASES
+                            # Mean
+                            nparray = np.array([int(freq2[x]) for x in freq2.keys()])
+                            totalvalue = sum([int(freq2[x]*x) for x in freq2.keys()])
+
+                            question.mean = list(frequency.keys())[int(round(totalvalue/question.totalresponses))]
+
+                            # Median
+                            question.median = list(frequency.keys())[int(round(np.median(nparray)))] ## FIX THIS: CURRENT RETURNS MEDIAN OF GIVEN ARRAY, NOT BASED ON WEIGHTED VALUES
+
+                            # Upper Quartile
+                            question.uq = list(frequency.keys())[int(round(np.median(sorted(nparray)[10:])))]
+
+                            # Lower Quartile / 1st Quartile
+                            question.lq = list(frequency.keys())[int(round(np.median(sorted(nparray)[:10])))]
+
+                            # Interquartile range
+                            question.iqr = list(frequency.keys())[int(round(abs(uq-lq)))]
+
+                            # Standard Deviation
+                            question.standarddev = list(frequency.keys())[int(np.std(nparray))]
+
+                            # Minimum and Maximum
+                            question.minval = list(frequency.keys())[int(round(min(nparray)))]
+                            question.maxval = list(frequency.keys())[int(round(max(nparray)))]
+
+                        else:
+                            # Mean
+                            totalvalue = sum([int(x) for x in question.data])
+                            question.mean = totalvalue/question.totalresponses
+
+                            # Median
+                            question.median = np.median(nparray)
+
+                            # Upper Quartile
+                            question.uq = np.median(nparray[10:])
+
+                            # Lower Quartile / 1st Quartile
+                            question.lq = np.median(nparray[:10])
+
+                            # Interquartile range
+                            question.iqr = abs(uq-lq)
+
+                            # Standard Deviation
+                            question.standarddev = np.std(nparray)
+
+                            # Minimum and Maximum
+                            question.minval = min(nparray)
+                            question.maxval = max(nparray)
+
+                            # Anomalies
+                            question.anomdata = find_anomalies(nparray)
+                            print(question.anomdata)
+
+                    except ZeroDivisionError:
+                        ## RAISE ERROR
+                        print("ZDE2")
+                        print(question.name)
+                        question.mean = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
+                        if ZDEAlert == False:
+                            ZDEAlert = True
+                            dialog = NoTitleDialog()
+                            dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                            dialog.open()
+                        pass
+
+                    except ValueError: # ValueError or IndexError
+                        ## RAISE NOTIF
+                        #print(question.totalresponses, question.mode[0])
+                        #print(question.name)
+                        question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
+                        question.anomdata = "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"
+                        if OEAlert == False:
+                            OEAlert = True
+                            dialog = NoTitleDialog()
+                            dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                            dialog.open()
+                        ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
+                        pass
+
+                    except IndexError:
+                        ## RAISE NOTIF
+                        #print(question.totalresponses, question.mode[0])
+                        #print(question.name)
+                        question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = question.anomdata ="NA"
+                        if OEAlert == False:
+                            OEAlert = True
+                            dialog = NoTitleDialog()
+                            dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                            dialog.open()
+                        ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
+                        pass
+                    # except:
+                    #     pass
+                index += 1
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
