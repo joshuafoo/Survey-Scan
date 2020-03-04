@@ -805,31 +805,22 @@ class Anomalies(StackLayout):
 
 ## Create Scrollable Label
             
+                
+        long_text = ""
+        print(selectedButton.anomdata)
+        for num,i in enumerate(selectedButton.anomdata):
+            name = "Joshua"
+            index = str(i[1])
+            response = str(i[0])
+            long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
+            long_text+="\n"+"-"*200
             
             
-        long_text = """{}""".format(selectedButton.anomdata)
-        
-
         l = ScrollableLabel(text=long_text)
 
         # Add scrollable label to self
         self.add_widget(l)
-class Anomalylist(RecycleView):
-    global selectedButton
-    def getData(self):
-        data=[]
-        global surveyfile
-        global questioninfo
-        global directstate
-        for i in enumerate(selectedButton):
-            add = {}
-            add['name'] = str(surveyfile[i[1]].name)
-            add['index'] = i[0]
-            
-            add['row_count'] = str(i)
-            
-            data.append(add)
-        return data
+
 
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
