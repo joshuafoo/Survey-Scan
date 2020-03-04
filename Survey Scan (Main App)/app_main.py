@@ -123,7 +123,7 @@ class First(Screen):
             text="",
             background_normal="reload_sprite.png",
             background_down="reload_sprite_2.png",
-            pos_hint ={'center_y': .65, 'center_x': .05},size_hint = (.07, .21))
+            pos_hint ={'center_y': .65, 'center_x': .67},size_hint = (.06, .18))
 
         # Creating "Enter file name" label
         l = Label(
@@ -286,6 +286,7 @@ class First(Screen):
         btn.bind(on_press=on_button)
 
         def reload_spinner(instance):
+            self.spinner.text="Select File"
             cwd = os.getcwd() # Get Current Working Directory (CWD)
             self.files = []
             for f in listdir(cwd):
@@ -819,11 +820,30 @@ class Bar_Chart(BoxLayout):
         plt.clf() # Clear all
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
         print(selectedButton.freqdata)
+        default_arr = selectedButton.freqdata
+        #remove @ entry if exists
+        if("@" in default_arr):
+            del default_arr["@"]
+            
+        #Limits data to max 5 
+        sorted_arr = sorted(default_arr, key=default_arr.get, reverse=True)
+        frequencyarr = {}
+        count = 0
+        #others_count = 0 
+        for i in sorted_arr:
+            if(count <=5):
+                frequencyarr[i] = selectedButton.freqdata[i]
+                count+=1
+           #else:
+                #others_count+=selectedButton.freqdata[i]
+        #if(len(sorted_arr)>5):
+            #frequencyarr["others"] = others_count
+        
         objects = []
         performance = []
-        for item in selectedButton.freqdata.keys():
+        for item in frequencyarr.keys():
             objects.append(item)
-            performance.append(selectedButton.freqdata[item])
+            performance.append(frequencyarr[item])
         objects = tuple(objects)
         y_pos = np.arange(len(objects))
 
