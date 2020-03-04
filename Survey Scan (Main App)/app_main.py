@@ -10,6 +10,7 @@ try:
     import os
     import operator
     import statistics
+    import csv
     from functools import partial
     from threading import Thread
     from os import listdir
@@ -65,6 +66,7 @@ notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated
 file_path = ""
 displayarr = [] # For Data Processing from Second Screen to Third Screen
 selectedButton = "NA"
+filename = ''
 
 
 class Question:
@@ -195,6 +197,8 @@ class First(Screen):
                     questioninfo = []
                     # FILE DATA HANDLING
                     surveyfile = pd.read_csv(file)
+                    global filename
+                    filename = file
                     questions = list(surveyfile.columns.values)
                     global notallowed
                     for question in questions:
@@ -262,6 +266,7 @@ class First(Screen):
                         elif len(dataArray) > 10:
                             toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
                             directstate.append("Open Ended")
+
                     # CHANGE SCREEN
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
@@ -375,6 +380,7 @@ class Second(Screen):
             maxval = minval = mean = median = mode = standarddev = iqr = uq = lq = totalresponses = 0
             global displayarr
             if question.type == "Open Ended":
+                question.totalresponses = len(question.data)
                 polarityarray = []
                 for response in question.data:
                     temp = []
@@ -591,6 +597,41 @@ class third(Screen):
         root.get_screen('third').ids.rv.data = data # set data
 
     def save(self):# Save button pressed
+        ## SAVE FILE AS CSV ##
+        csv_columns = ['Index', 'Name', 'Type', 'Minimum Value', 'Maximum Value', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Interquartile Range', 'Upper Quartile', 'Lower Quartile', 'Total Responses', 'Anomalies']
+        dict_data = []
+        for index, question in enumerate(questioninfo):
+            temp = {}
+            # 16 Fields
+            print(question.name)
+            temp["Index"] = index+1
+            temp["Name"] = question.name
+            temp["Type"] = question.type
+            temp["Minimum Value"] = question.minval
+            temp["Maximum Value"] = question.maxval
+            temp["Mean"] = question.mean
+            temp["Median"] = question.median
+            temp["Mode"] = question.mode
+            temp["Standard Deviation"] = question.standarddev
+            temp["Interquartile Range"] = question.iqr
+            temp["Upper Quartile"] = question.uq
+            temp["Lower Quartile"] = question.lq
+            temp["Total Responses"] = question.totalresponses
+            temp["Anomalies"] = question.anomdata
+            dict_data.append(temp)
+
+        print(dict_data)
+        global filename
+        csv_file = "evaluated-{}".format(filename)
+        try:
+            with open(csv_file, 'w') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+                writer.writeheader()
+                for data in dict_data:
+                    writer.writerow(data)
+        except IOError:
+            print("I/O error")
+        os.system("open {}".format(csv_file))
         MyApp.get_running_app().stop() # STOPS APPLICATION
 
     def on_enter(self):
@@ -803,16 +844,16 @@ class Sentiment_Data(StackLayout):
                 lmode += ', '
 
         long_text = """\
-        Sentiment Mean/Average: {}
-        Sentiment Mode(s): {}
-        Sentiment Median: {}
-        Sentiment Standard Deviation: {}
-        Sentiment Interquartile Range: {}
-        Sentiment Upper Quartile: {}
-        Sentiment Lower Quartile: {}
-        Sentiment Total No. Responses: {}
-        Lowest Sentiment Response(s): {}
-        Highest Sentiment Response(s): {}
+        Perception Mean/Average: {}
+        Perception Mode(s): {}
+        Perception Median: {}
+        Perception Standard Deviation: {}
+        Perception Interquartile Range: {}
+        Perception Upper Quartile: {}
+        Perception Lower Quartile: {}
+        Perception Total No. Responses: {}
+        Lowest Perception Response(s): {}
+        Highest Perception Response(s): {}
         """.format(question.mean,lmode,question.median,question.standarddev,question.iqr,question.uq,question.lq, question.totalresponses, question.minval, question.maxval)
 
         l = ScrollableLabel(text=long_text)
