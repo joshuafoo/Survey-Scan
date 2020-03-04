@@ -480,14 +480,12 @@ class Second(Screen):
                         ## CALCULATE DATA FOR SPECIAL CASES
                         # Mean
                         nparray = np.array([int(freq2[x]) for x in freq2.keys()])
-                        fullarr = [int(freq2[x]*x) for x in freq2.keys()]
-                        totalvalue = sum(fullarr)
+                        totalvalue = sum([int(freq2[x]*x) for x in freq2.keys()])
 
                         question.mean = list(frequency.keys())[int(round(totalvalue/question.totalresponses))]
 
                         # Median
-                        print(int(round(np.median(sorted(nparray)))))
-                        question.median = list(frequency.keys())[int(round(fullarr))] ## FIX THIS
+                        question.median = list(frequency.keys())[int(round(np.median(nparray)))] ## FIX THIS: CURRENT RETURNS MEDIAN OF GIVEN ARRAY, NOT BASED ON WEIGHTED VALUES
 
                         # Upper Quartile
                         question.uq = list(frequency.keys())[int(round(np.median(sorted(nparray)[10:])))]
@@ -529,19 +527,6 @@ class Second(Screen):
                         question.minval = min(nparray)
                         question.maxval = max(nparray)
 
-                except ValueError:
-                    ## RAISE NOTIF
-                    #print(question.totalresponses, question.mode[0])
-                    #print(question.name)
-                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
-                    if OEAlert == False:
-                        OEAlert = True
-                        dialog = NoTitleDialog()
-                        dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
-                        dialog.open()
-                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
-                    pass
-
                 except ZeroDivisionError:
                     ## RAISE ERROR
                     print("ZDE2")
@@ -553,13 +538,19 @@ class Second(Screen):
                         dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
                         dialog.open()
                     pass
-                # except IndexError:
-                #     pass
-                # except:
-                #     pass
 
-                ## SAVE THE CALCULATED DATA
-                #displayarr.append(temp)
+                except: # ValueError or IndexError
+                    ## RAISE NOTIF
+                    #print(question.totalresponses, question.mode[0])
+                    #print(question.name)
+                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
+                    if OEAlert == False:
+                        OEAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                        dialog.open()
+                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
+                    pass
 
         self.manager.current =  "third" # Transition to third scene
 
@@ -627,15 +618,21 @@ class Item2(FloatLayout):
     def __init__(self, **kwargs):
         super(Item2, self).__init__(**kwargs)
         # Define variables
+        global selectedButton
+        print(selectedButton.type)
         self.array = ["Statistics","Pie Chart","Bar Chart","Anomalies"]
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
 
     def fire_popup(self,name,question_type):
         ## Set Button Selected ##
-        global selectedButton
         for item in questioninfo:
             if str(item.name) == str(name):
+                global selectedButton
                 selectedButton = item
+                if selectedButton.type == "Open Ended":
+                    self.array = ["Sentiment Data","Pie Chart","Bar Chart","Anomalies"]
+                else:
+                    self.array = ["Statistics","Pie Chart","Bar Chart","Anomalies"]
 
         ## Creates popup widget ##
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
@@ -785,6 +782,44 @@ class Bar_Chart(BoxLayout):
 class ScrollableLabel(ScrollView):
     text = StringProperty('')
 
+class Sentiment_Data(StackLayout):
+    def __init__(self, **kwargs):
+        super(Sentiment_Data, self).__init__(**kwargs)
+        ## Set Constraints of view ##
+        self.orientation = "tb-lr" # FORMAT: Left Right Top Bottom
+        self.size_hint = (0.9, 0.8)
+        self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
+
+        ## Create Scrollable Label
+        global selectedButton
+        lmode = ''
+        question = selectedButton
+        for index, smode in enumerate(question.mode):
+            try:
+                lmode += str(int(smode))
+            except:
+                lmode += '\"' + str(smode) + '\"'
+            if index != len(question.mode)-1:
+                lmode += ', '
+
+        long_text = """\
+        Sentiment Mean/Average: {}
+        Sentiment Mode(s): {}
+        Sentiment Median: {}
+        Sentiment Standard Deviation: {}
+        Sentiment Interquartile Range: {}
+        Sentiment Upper Quartile: {}
+        Sentiment Lower Quartile: {}
+        Sentiment Total No. Responses: {}
+        Lowest Sentiment Response(s): {}
+        Highest Sentiment Response(s): {}
+        """.format(question.mean,lmode,question.median,question.standarddev,question.iqr,question.uq,question.lq, question.totalresponses, question.minval, question.maxval)
+
+        l = ScrollableLabel(text=long_text)
+
+        # Add scrollable label to self
+        self.add_widget(l)
+
 class Statistics(StackLayout):
     def __init__(self, **kwargs):
         super(Statistics, self).__init__(**kwargs)
@@ -822,8 +857,6 @@ class Statistics(StackLayout):
 
         # Add scrollable label to self
         self.add_widget(l)
-
-
 
 class RV(RecycleView):pass
 
