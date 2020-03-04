@@ -96,7 +96,20 @@ def truncate(text,num_char):
     else:
         return text
 """
+def find_anomalies(data):
+    anomalies = []
+    # Set upper and lower limit to 3 standard deviation
+    data_std = np.std(data)
+    data_mean = np.mean(data)
+    anomaly_cut_off = data_std * 3
 
+    lower_limit  = data_mean - anomaly_cut_off
+    upper_limit = data_mean + anomaly_cut_off
+    # Generate outliers
+    for index, outlier in enumerate(data):
+        if outlier > upper_limit or outlier < lower_limit:
+            anomalies.append((outlier, index))
+    return anomalies
 
 class NoTitleDialog(Popup): # ALERT CLASS
     # e.g to show an alert with message "WHY" and a ok button, call
@@ -385,7 +398,7 @@ class Second(Screen):
                 if question.totalresponses > 10 and OEMAlert == False:
                     OEMAlert = True
                     dialog = NoTitleDialog()
-                    dialog.label_text = "Some Data for Open Ended Questions may be ommitted due to the large size of the data"
+                    dialog.label_text = "PLEASE NOTE:\nSome Data for Open Ended Questions may be ommitted due to the large size of the data"
                     dialog.open()
                 polarityarray = []
                 for response in question.data:
@@ -443,15 +456,19 @@ class Second(Screen):
                     question.minval = min(nparray)
                     question.maxval = max(nparray)
 
+                    # Anomalies
+                    question.anomdata = find_anomalies(nparray)
+                    print(question.anomdata)
+
                 except ZeroDivisionError:
                     ## RAISE ERROR
                     print("ER0")
                     print(question.name)
-                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
+                    question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = question.anomdata = "NA"
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
-                        dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                        dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
                         dialog.open()
                     pass
 
@@ -539,6 +556,10 @@ class Second(Screen):
                         question.minval = min(nparray)
                         question.maxval = max(nparray)
 
+                        # Anomalies
+                        question.anomdata = find_anomalies(nparray)
+                        print(question.anomdata)
+
                 except ZeroDivisionError:
                     ## RAISE ERROR
                     print("ZDE2")
@@ -547,23 +568,38 @@ class Second(Screen):
                     if ZDEAlert == False:
                         ZDEAlert = True
                         dialog = NoTitleDialog()
-                        dialog.label_text = "No Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
+                        dialog.label_text = "ALERT:\nNo Responses were found for one/some question(s). Statistics will not be shown for that/those question(s). "
                         dialog.open()
                     pass
 
-                except: # ValueError or IndexError
+                except ValueError: # ValueError or IndexError
                     ## RAISE NOTIF
                     #print(question.totalresponses, question.mode[0])
                     #print(question.name)
                     question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = "NA"
+                    question.anomdata = "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"
                     if OEAlert == False:
                         OEAlert = True
                         dialog = NoTitleDialog()
-                        dialog.label_text = "No Mean will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                        dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
                         dialog.open()
                     ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
                     pass
 
+                except IndexError:
+                    ## RAISE NOTIF
+                    #print(question.totalresponses, question.mode[0])
+                    #print(question.name)
+                    question.mean = question.median = question.uq = question.lq = question.iqr = question.standarddev = question.minval = question.maxval = question.anomdata ="NA"
+                    if OEAlert == False:
+                        OEAlert = True
+                        dialog = NoTitleDialog()
+                        dialog.label_text = "PLEASE NOTE:\nNo Mean, Median, Upper Quartile, Lower Quartile, Interquartile Range, Standard Deviation, Anomalies, Minval and Maxval will be shown for Multiple Choice and Strongly Agree/Disagree Questions."
+                        dialog.open()
+                    ## CONVERT ALL STRONGLY AGREE AND DISAGREE VALUES // MULTIPLE CHOICE VALUES TO SCALE DEGREE
+                    pass
+                # except:
+                #     pass
         self.manager.current =  "third" # Transition to third scene
 
     def quit_app(self):
