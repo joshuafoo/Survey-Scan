@@ -67,7 +67,7 @@ file_path = ""
 displayarr = [] # For Data Processing from Second Screen to Third Screen
 selectedButton = "NA"
 filename = ''
-
+surveyfile = None
 
 class Question:
     def __init__(self, name, data, type, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses, anomdata, freqdata, sentidata, isValidRow):
@@ -90,13 +90,6 @@ class Question:
         self.isValidRow = isValidRow
 
 ### User Interface ###
-"""
-def truncate(text,num_char):
-    if(len(text) > num_char):
-        return text[:40] + "..."
-    else:
-        return text
-"""
 def find_anomalies(data):
     anomalies = []
     # Set upper and lower limit to 3 standard deviation
@@ -210,6 +203,7 @@ class First(Screen):
                 if(file != "Select File" or file != "No .csv files found in directory"):
                     questioninfo = []
                     # FILE DATA HANDLING
+                    global surveyfile
                     surveyfile = pd.read_csv(file)
                     global filename
                     filename = file
@@ -228,7 +222,8 @@ class First(Screen):
                         rowisvalid = False
                         for response in validquestiondata.data:
                             try:
-                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == "" or (type(response) == Float and math.isnan(float(response))):
+                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == "" or (type(response) == Float and math.isnan(float(response)) or response == []):
+                                    print("Bad")
                                     print(response)
                                     validquestiondata.data.remove(response)
                                 else:
@@ -239,7 +234,7 @@ class First(Screen):
                         if rowisvalid:
                             print(validquestiondata.name)
                             validquestiondata.isValidRow = True
-
+                            
                     if len(questioninfo) == 0:
                         raise Error("Please Select a valid .csv file")
                     else:
@@ -295,6 +290,7 @@ class First(Screen):
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
+
 
             # Error Handling
             except Error as e:
@@ -360,6 +356,7 @@ class Item(GridLayout):
         refff.b4state = refff.ids.b4.state
 
 
+
 class StockList(RecycleView):
     def getData(self):
         data = []
@@ -382,6 +379,8 @@ class StockList(RecycleView):
                 add['row_count'] = str(i)
                 data.append(add)
         return data
+
+    
 
 class Second(Screen):
     def goback(self): # When back button is clicked
@@ -703,9 +702,14 @@ class Questionlist(RecycleView):
         data=[]
         global questioninfo
         global directstate
+        
         for i, item in enumerate(questioninfo):
             add = {}
-            add['name'] = str(item.name)
+            if(len(str(item.name)) >180):
+                
+                add['name'] = str(item.name.replace("	"," "))[:150] + "..."
+            else:
+                add['name'] = str(item.name.replace("	"," "))
             add['row_count'] = str(i)
             add['question_type'] = directstate[i]
             data.append(add)
@@ -739,7 +743,7 @@ class Item2(FloatLayout):
             pops.title = name[:105] + "..."# Truncate name
         else:
             pops.title = name
-
+        
         pops.title_size = 40
 
         ## Create UI Elements ##
@@ -780,6 +784,7 @@ class Item2(FloatLayout):
                      background_color =(.3, .6, .7, 1),
                      pos_hint ={'center_y': 0.05, 'center_x': .5},
                      on_press = lambda *args: pops.dismiss())
+       
 
         ## Add Widgets to Popup ##
         Fl.add_widget(self.current_segement)
@@ -792,20 +797,39 @@ class Item2(FloatLayout):
 class Anomalies(StackLayout):
     def __init__(self, **kwargs):
         super(Anomalies, self).__init__(**kwargs)
+        global questioninfo
         ## Set constraints of view ##
         self.orientation = "tb-lr" # FORMAT: Left Right Top Bottom
         self.size_hint = (0.9, 0.8)
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
-
+            
+            
+            
         long_text = """{}""".format(selectedButton.anomdata)
+        
 
         l = ScrollableLabel(text=long_text)
 
         # Add scrollable label to self
         self.add_widget(l)
-
+class Anomalylist(RecycleView):
+    global selectedButton
+    def getData(self):
+        data=[]
+        global surveyfile
+        global questioninfo
+        global directstate
+        for i in enumerate(selectedButton):
+            add = {}
+            add['name'] = str(surveyfile[i[1]].name)
+            add['index'] = i[0]
+            
+            add['row_count'] = str(i)
+            
+            data.append(add)
+        return data
 
 class Pie_Chart(BoxLayout):
     def __init__(self, **kwargs):
@@ -834,13 +858,10 @@ class Pie_Chart(BoxLayout):
             if(count <=5):
                 frequencyarr[i] = selectedButton.freqdata[i]
                 count+=1
-            #else:
-                #others_count+=selectedButton.freqdata[i]
-        #if(len(sorted_arr)>5):
-            #frequencyarr["others"] = others_count
 
         data = [frequencyarr[x] for x in frequencyarr]
         keys = [str(x) for x in frequencyarr.keys()]
+
         global index
         index = 0
 
