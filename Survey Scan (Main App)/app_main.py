@@ -62,7 +62,7 @@ except ImportError:
 questioninfo = []
 toggle_states = [] # Stores Toggle States of Toggle Buttons
 directstate = []
-notallowed = ["Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
+notallowed = ["Index", "Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
 file_path = ""
 displayarr = [] # For Data Processing from Second Screen to Third Screen
 selectedButton = "NA"
@@ -70,7 +70,7 @@ filename = ''
 
 
 class Question:
-    def __init__(self, name, data, type, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses, anomdata, freqdata, sentidata):
+    def __init__(self, name, data, type, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses, anomdata, freqdata, sentidata, isValidRow):
         self.name = name
         self.data = data
         self.type = type
@@ -87,6 +87,7 @@ class Question:
         self.anomdata = anomdata
         self.freqdata = freqdata
         self.sentidata = sentidata
+        self.isValidRow = isValidRow
 
 ### User Interface ###
 """
@@ -221,14 +222,24 @@ class First(Screen):
                                 isInvalid = True
                                 break
                         if not isInvalid:
-                            questioninfo.append(Question(question, list(surveyfile[question]),'', '', '', '', '', '', '', '', '', '', '', '', '', ''))
+                            questioninfo.append(Question(question, list(surveyfile[question]),'', '', '', '', '', '', '', '', '', '', '', '', '', '', False))
                     # REMOVING UNWANTED VALUES
                     for validquestiondata in questioninfo:
+                        rowisvalid = False
                         for response in validquestiondata.data:
                             try:
-                                if str(response).strip().lower() == "nil" or str(response) == "" or (type(response) == float and response == math.nan):
+                                if str(response).strip().lower() == "nil" or str(response).strip().lower() == "na" or str(response).strip() == "" or (type(response) == Float and math.isnan(float(response))):
+                                    print(response)
                                     validquestiondata.data.remove(response)
-                            except: pass
+                                else:
+                                    rowisvalid = True
+                            except:
+                                rowisvalid = True
+                                pass
+                        if rowisvalid:
+                            print(validquestiondata.name)
+                            validquestiondata.isValidRow = True
+
                     if len(questioninfo) == 0:
                         raise Error("Please Select a valid .csv file")
                     else:
@@ -284,7 +295,6 @@ class First(Screen):
                     self.manager.current =  "second"
                     self.err.color = [1, .8, .8, 0]
                     #Window.size = (1000, 800)#set window size
-
 
             # Error Handling
             except Error as e:
@@ -356,20 +366,21 @@ class StockList(RecycleView):
         global questioninfo
         global toggle_states
         for i, item in enumerate(questioninfo):
-            #print(item.name) ## NOTE: DEBUG PURPOSES ONLY, DO NOT RUN IN MAIN APP
-            add = {}
-            #Truncate logic
-            if(len(str(item.name)) >240):
-                add['name'] = str(item.name.replace("	"," "))[:240] + "..."
-            else:
-                add['name'] = str(item.name.replace("	"," "))
-            item.name = add['name']
-            add['b1state'] = toggle_states[i][0]
-            add['b2state'] = toggle_states[i][1]
-            add['b3state'] = toggle_states[i][2]
-            add['b4state'] = toggle_states[i][3]
-            add['row_count'] = str(i)
-            data.append(add)
+            print(i, item.name)
+            if item.isValidRow:
+                add = {}
+                #Truncate logic
+                if(len(str(item.name)) > 240):
+                    add['name'] = str(item.name.replace("	"," "))[:240] + "..."
+                else:
+                    add['name'] = str(item.name.replace("	"," "))
+                item.name = add['name']
+                add['b1state'] = toggle_states[i][0]
+                add['b2state'] = toggle_states[i][1]
+                add['b3state'] = toggle_states[i][2]
+                add['b4state'] = toggle_states[i][3]
+                add['row_count'] = str(i)
+                data.append(add)
         return data
 
 class Second(Screen):
