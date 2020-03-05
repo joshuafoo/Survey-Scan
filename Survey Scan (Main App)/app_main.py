@@ -68,7 +68,6 @@ displayarr = [] # For Data Processing from Second Screen to Third Screen
 selectedButton = "NA"
 filename = ''
 surveyfile = None
-perresponse = []
 
 class Question:
     def __init__(self, name, data, type, minval, maxval, mean, median, mode, standarddev, iqr, uq, lq, totalresponses, anomdata, freqdata, sentidata, isValidRow):
@@ -168,7 +167,7 @@ class First(Screen):
         for i, item in enumerate(self.modfiles):
             if(len(item) > 40):
                 self.modfiles[i] = item[:40] + "..."
-        print(self.files)
+        # print(self.files)
 
         #Create spinner
         self.spinner = Spinner(
@@ -189,7 +188,7 @@ class First(Screen):
             Window.left = 250
             Window.top = 40
             global questioninfo
-            print(self.files,self.modfiles)
+            # print(self.files,self.modfiles)
             try:
                 ## NOTE: self.spinner.text will give you the value that is selected in the spinner
                 try:
@@ -206,8 +205,12 @@ class First(Screen):
                     questioninfo = []
                     # FILE DATA HANDLING
                     global surveyfile
-                    surveyfile = pd.read_csv(file)
+                    try:
+                        surveyfile = pd.read_csv(file)
+                    except:
+                        raise Error("Please Select a valid .csv file")
                     global filename
+                    global perresponse
                     filename = file
                     questions = list(surveyfile.columns.values)
                     global notallowed
@@ -232,11 +235,11 @@ class First(Screen):
                                     #print("{} is normal valid".format(response))
                                     rowisvalid = True
                             except:
-                                print("{} is valid".format(response))
+                                # print("{} is valid".format(response))
                                 rowisvalid = True
                                 pass
                         if rowisvalid:
-                            print(validquestiondata.name)
+                            # print(validquestiondata.name)
                             validquestiondata.isValidRow = True
 
                     if len(questioninfo) == 0:
@@ -262,12 +265,12 @@ class First(Screen):
                                 else:
                                     dataArray[str(value).lower()] = 1
                             # DATA ANALYSIS (Multiple-Choice, Strongly Agree/Disagree, Scale Rating (1 to 10), Open Ended)
-                            print(item.name)
+                            # print(item.name)
                             hasAppended = False
                             ## CHECK FOR STRONGLY AGREE/DISAGREE
                             if len(dataArray) <= 5 and any(elem in agreearray for elem in dataArray.keys()):
                                 hasAppended = True
-                                print("SA/SD")
+                                # print("SA/SD")
                                 toggle_states.append(['normal','down','normal','normal']) # Strongly Agree/Disagree Question
                                 directstate.append("Strongly Agree/Disagree")
                             ## CHECK FOR SCALE RATING
@@ -288,18 +291,18 @@ class First(Screen):
                                             pass
                                 if isValidQuestion:
                                     hasAppended = True
-                                    print("SCALER")
+                                    # print("SCALER")
                                     toggle_states.append(['normal','normal','down','normal']) # Scale Rating Question
                                     directstate.append("Scale Rating (1 to 10)")
                             ## CHECK FOR MULTIPLE CHOICE
                             if hasAppended == False:
                                 if len(dataArray) <= 4:
-                                    print("MCQ")
+                                    # print("MCQ")
                                     toggle_states.append(['down','normal','normal','normal']) # Multiple Choice Question
                                     directstate.append("Multiple-Choice")
                                 ## CHECK FOR OPEN ENDED
                                 else:
-                                    print("OE")
+                                    # print("OE")
                                     toggle_states.append(['normal','normal','normal','down']) # Open Ended Question
                                     directstate.append("Open Ended")
 
@@ -317,7 +320,7 @@ class First(Screen):
                 Window.left = 420
                 Window.top = 250
             except Exception:
-                print("Something went wrong,this is the error")
+                print("Something went wrong, this is the error")
                 traceback.print_exc()
 
         btn.bind(on_press=on_button)
@@ -342,7 +345,7 @@ class First(Screen):
             for i, item in enumerate(self.modfiles):
                 if(len(item) > 40):
                     self.modfiles[i] = item[:40] + "..."
-            print(self.modfiles)
+            # print(self.modfiles)
 
             self.spinner.values = set(self.modfiles)
 
@@ -380,14 +383,14 @@ class StockList(RecycleView):
         data = []
         global questioninfo
         global toggle_states
-        print(len(questioninfo))
-        print(len(toggle_states))
-        print(toggle_states)
+        # print(len(questioninfo))
+        # print(len(toggle_states))
+        # print(toggle_states)
         i = 0
         for item in questioninfo:
             if item.isValidRow:
-                print(i, item.name)
-                print(item.isValidRow)
+                # print(i, item.name)
+                # print(item.isValidRow)
                 add = {}
                 #Truncate logic
                 if(len(str(item.name)) > 240):
@@ -494,12 +497,12 @@ class Second(Screen):
 
                         # Anomalies
                         question.anomdata = find_anomalies(nparray)
-                        print(question.anomdata)
+                        # print(question.anomdata)
 
                     except ZeroDivisionError:
                         ## RAISE ERROR
-                        print("ER0")
-                        print(question.name)
+                        # print("ER0")
+                        # print(question.name)
                         question.mean = question.mode = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = question.anomdata = "NA"
                         if ZDEAlert == False:
                             ZDEAlert = True
@@ -524,7 +527,7 @@ class Second(Screen):
                     try:
                         # Total No. Responses
                         question.totalresponses = len(question.data)
-                        print(question.totalresponses)
+                        # print(question.totalresponses)
 
                         ## NUMPY ARRAY FOR STATISTIC VALUES
                         nparray = np.array([value for value in question.data])
@@ -594,12 +597,12 @@ class Second(Screen):
 
                             # Anomalies
                             question.anomdata = find_anomalies(nparray)
-                            print(question.anomdata)
+                            # print(question.anomdata)
 
                     except ZeroDivisionError:
                         ## RAISE ERROR
-                        print("ZDE2")
-                        print(question.name)
+                        # print("ZDE2")
+                        # print(question.name)
                         question.mean = question.median = question.standarddev = question.uq = question.lq = question.iqr = question.minval = question.maxval = "NA"
                         if ZDEAlert == False:
                             ZDEAlert = True
@@ -685,7 +688,7 @@ class third(Screen):
         for index, question in enumerate(questioninfo):
             temp = {}
             # 16 Fields
-            print(question.name)
+            # print(question.name)
             temp["Index"] = index+1
             temp["Name"] = question.name
             temp["Type"] = question.type
@@ -702,7 +705,8 @@ class third(Screen):
             temp["Anomalies"] = question.anomdata
             dict_data.append(temp)
 
-        print(dict_data)
+        #
+        # print(dict_data)
         global filename
         csv_file = "evaluated-{}".format(filename)
         try:
@@ -749,7 +753,7 @@ class Item2(FloatLayout):
         super(Item2, self).__init__(**kwargs)
         # Define variables
         global selectedButton
-        print(selectedButton.type)
+        # print(selectedButton.type)
         self.array = ["Statistics","Pie Chart","Bar Chart","Anomalies"]
         self.current_segement = globals()[self.array[0].replace(" ", "_")]()
 
@@ -834,7 +838,7 @@ class Anomalies(StackLayout):
 
 ## Create Scrollable Label
         long_text = ""
-        print("anomdata =",selectedButton.anomdata)
+        # print("anomdata =",selectedButton.anomdata)
         if(selectedButton.anomdata == "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"):
             long_text = "NA"
         else:
@@ -843,10 +847,9 @@ class Anomalies(StackLayout):
                     if(selectedButton.anomdata==""):
                         long_text = "NA"
                     else:
-                        name = "Joshua"
                         index = str(i[1])
                         response = str(i[0])
-                        long_text+='\n Response {} with name {} has anomalous response: "{}" '.format(index,name,response)
+                        long_text+='\n Response NO #{} has anomalous response: "{}" '.format(index,response)
                         long_text+="\n"
             else:
                 long_text = "NA"
@@ -921,7 +924,7 @@ class Bar_Chart(BoxLayout):
 ## Create Graph ##
         plt.clf() # Clear all
         plt.rcParams['font.size'] = 25.0 # Set Font Size of Words
-        print(selectedButton.freqdata)
+        # print(selectedButton.freqdata)
         default_arr = selectedButton.freqdata
         #remove @ entry if exists
         if("@" in default_arr):
