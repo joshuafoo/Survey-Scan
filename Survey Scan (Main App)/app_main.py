@@ -728,17 +728,19 @@ class Questionlist(RecycleView):
         data=[]
         global questioninfo
         global directstate
+        i = 0
+        for item in questioninfo:
+            if item.isValidRow:
+                add = {}
+                if(len(str(item.name)) > 100):
 
-        for i, item in enumerate(questioninfo):
-            add = {}
-            if(len(str(item.name)) > 100):
-
-                add['name'] = str(item.name.replace("	"," "))[:100] + "..."
-            else:
-                add['name'] = str(item.name.replace("	"," "))
-            add['row_count'] = str(i)
-            add['question_type'] = directstate[i]
-            data.append(add)
+                    add['name'] = str(item.name.replace("	"," "))[:100] + "..."
+                else:
+                    add['name'] = str(item.name.replace("	"," "))
+                add['row_count'] = str(i)
+                add['question_type'] = directstate[i]
+                data.append(add)
+                i+=1
         return data
 
 class Item2(FloatLayout):
@@ -847,7 +849,7 @@ class Anomalies(StackLayout):
                         long_text+="\n"
             else:
                 long_text = "NA"
-                
+
         l = ScrollableLabel(text=long_text)
 
         # Add scrollable label to self
