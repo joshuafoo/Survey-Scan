@@ -103,6 +103,7 @@ def find_anomalies(data):
     for index, outlier in enumerate(data):
         if outlier > upper_limit or outlier < lower_limit:
             anomalies.append((outlier, index))
+            ### FIND NAME
     return anomalies
 
 class NoTitleDialog(Popup): # ALERT CLASS
@@ -730,9 +731,9 @@ class Questionlist(RecycleView):
 
         for i, item in enumerate(questioninfo):
             add = {}
-            if(len(str(item.name)) >180):
+            if(len(str(item.name)) > 100):
 
-                add['name'] = str(item.name.replace("	"," "))[:150] + "..."
+                add['name'] = str(item.name.replace("	"," "))[:100] + "..."
             else:
                 add['name'] = str(item.name.replace("	"," "))
             add['row_count'] = str(i)
@@ -830,21 +831,23 @@ class Anomalies(StackLayout):
 
 ## Create Scrollable Label
         long_text = ""
-        print(selectedButton.anomdata)
-
-        if(selectedButton.anomdata != "NA"):
-            for num, i in enumerate(selectedButton.anomdata):
-                if(selectedButton.anomdata==""):
-                    long_text = "NA"
-                else:
-                    name = "Joshua"
-                    index = str(i[1])
-                    response = str(i[0])
-                    long_text+='\n Response #{} with name {} has response: "{}" '.format(index,name,response)
-                    long_text+="\n"
-        else:
+        print("anomdata =",selectedButton.anomdata)
+        if(selectedButton.anomdata == "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"):
             long_text = "NA"
-
+        else:
+            if(selectedButton.anomdata != "NA" and selectedButton.anomdata != ""):
+                for num,i in enumerate(selectedButton.anomdata):
+                    if(selectedButton.anomdata==""):
+                        long_text = "NA"
+                    else:
+                        name = "Joshua"
+                        index = str(i[1])
+                        response = str(i[0])
+                        long_text+='\n Response {} with name {} has anomalous response: "{}" '.format(index,name,response)
+                        long_text+="\n"
+            else:
+                long_text = "NA"
+                
         l = ScrollableLabel(text=long_text)
 
         # Add scrollable label to self
