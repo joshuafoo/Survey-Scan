@@ -832,23 +832,36 @@ class Anomalies(StackLayout):
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
+
+        global questioninfo
         long_text = ""
-        print("anomdata =",selectedButton.anomdata)
+        print("anomdata =",selectedButton.anomdata,selectedButton.type)
         if(selectedButton.anomdata == "No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions"):
             long_text = "NA"
         else:
-            if(selectedButton.anomdata != "NA" and selectedButton.anomdata != ""):
-                for num,i in enumerate(selectedButton.anomdata):
-                    if(selectedButton.anomdata==""):
-                        long_text = "NA"
-                    else:
-                        name = "Joshua"
-                        index = str(i[1])
-                        response = str(i[0])
-                        long_text+='\n Response {} with name {} has anomalous response: "{}" '.format(index,name,response)
-                        long_text+="\n"
+            if(selectedButton.anomdata != "NA" and selectedButton.anomdata != "" and selectedButton.anomdata != []):
+                if(selectedButton.type == "Open Ended"):
+                    for num,i in enumerate(selectedButton.anomdata):
+                        if(selectedButton.anomdata==""):
+                            long_text = "NA"
+                        else:
+                            index = str(i[1])
+                            sentiment = str(i[0])
+                            response = "you idoit"
+                            long_text+='\n Response number {} has response: "{}"  with the anomalous sentiment value of: {}'.format(index,response,sentiment)
+                            long_text+="\n"
+                else:
+                    for num,i in enumerate(selectedButton.anomdata):
+                        if(selectedButton.anomdata==""):
+                            long_text = "NA"
+                        else:
+                            index = str(i[1])
+                            response = str(i[0])
+                            long_text+='\n Response number {}has anomalous response: "{}" '.format(index,response)
+                            long_text+="\n"
             else:
                 long_text = "NA"
+            
 
         l = ScrollableLabel(text=long_text)
 
