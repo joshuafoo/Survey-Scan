@@ -20,12 +20,16 @@ echo Installing Textblob Package...
 pip install -U textblob
 pip3 install -U textblob
 python -m textblob.download_corpora
+python3 -m textblob.download_corpora
 echo Installing Matplotlib and Kivy Garden...
 pip install kivy-garden
 pip3 install kivy-garden
 python -m pip install matplotlib
 python3 -m pip3 install matplotlib
 garden install matplotlib
+python -m pip install matplotlib
+python3 -m pip3 install matplotlib
+python3 -m pip install matplotlib
 echo Installing Numpy...
 pip install numpy
 echo Installing Scipy...
