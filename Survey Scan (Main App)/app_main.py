@@ -829,20 +829,18 @@ class Anomalies(StackLayout):
         self.pos_hint ={'center_y': 0.5, 'center_x': 0.5}
 
 ## Create Scrollable Label
-
-
         long_text = ""
         print(selectedButton.anomdata)
-            
+
         if(selectedButton.anomdata != "NA"):
-            for num,i in enumerate(selectedButton.anomdata):
+            for num, i in enumerate(selectedButton.anomdata):
                 if(selectedButton.anomdata==""):
                     long_text = "NA"
                 else:
                     name = "Joshua"
                     index = str(i[1])
                     response = str(i[0])
-                    long_text+='\n Response {} with name {} has response: "{}" '.format(index,name,response)
+                    long_text+='\n Response #{} with name {} has response: "{}" '.format(index,name,response)
                     long_text+="\n"
         else:
             long_text = "NA"
