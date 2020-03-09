@@ -62,7 +62,7 @@ except ImportError:
 questioninfo = []
 toggle_states = [] # Stores Toggle States of Toggle Buttons
 directstate = []
-notallowed = ["Index", "Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
+notallowed = ["Timestamp", "Index", "Entry Id", "Date Created", "Created By", "Date Updated", "Updated By", "IP Address", "Last Page Accessed","Completion Status,", "Index Number", "Name", "Gender", "Age (This Year)", "School", "Completion Status"]
 file_path = ""
 displayarr = [] # For Data Processing from Second Screen to Third Screen
 selectedButton = "NA"

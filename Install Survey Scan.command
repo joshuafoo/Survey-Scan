@@ -2,6 +2,9 @@
 
 # install_surveyscan.py
 echo 
+echo Install GCC
+sudo yum install -y libffi libffi-devel
+xcode-select --install
 echo Updating Pip
 pip install –-upgrade pip
 pip3 install --upgrade pip3
