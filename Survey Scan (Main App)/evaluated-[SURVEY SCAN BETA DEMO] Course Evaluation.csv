@@ -1,0 +1,6 @@
+Index,Name,Type,Minimum Value,Maximum Value,Mean,Median,Mode,Standard Deviation,Interquartile Range,Upper Quartile,Lower Quartile,Total Responses,Anomalies
+1,Course content [Learning objectives were clear],Strongly Agree/Disagree,NA,NA,NA,NA,['Strongly disagree'],NA,NA,NA,NA,14,No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions
+2,Course content [Course content was organized and well planned],Strongly Agree/Disagree,NA,NA,NA,NA,['Strongly disagree'],NA,NA,NA,NA,14,No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions
+3,Course content [Course workload was appropriate],Strongly Agree/Disagree,NA,NA,NA,NA,['Agree'],NA,NA,NA,NA,14,No Anomalies will be displayed for Multiple Choice and Strongly Agree/Disagree Questions
+4,What aspects of this course were most useful or valuable?,Open Ended,0.0,0.5833333333333334,0.1125,0.0,[0.],0.18016517627094514,0,0.0,0.0,12,[]
+5,How would you improve this course?,Open Ended,0.0,0.5,0.08538961038961038,0.0,[0.],0.14548168938646583,0,0.0,0.0,14,[]
