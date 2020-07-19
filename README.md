@@ -15,7 +15,7 @@ For Proper Installation, please use Installation File and give it Sudo Rights. R
 
 
 # Guide
-For brief guidance as to how to use the application, Please see "Survey Scan User Manual.pdf" provided. For detailed guidance on how to use the application, Please see the "Survey Scan Detailed Guide.key" File. Please note that the Keynote file is intended for presentation purposes only, and may not neccessarily give you complete information related to the project.
+For brief guidance as to how to use the application, Please see "Survey Scan User Manual.pdf" provided ([link here](https://github.com/joshuafoo/Survey-Scan/blob/master/Survey%20Scan%20Installation%20Manual.pdf)). For detailed guidance on how to use the application, Please see the "Survey Scan Detailed Guide.key" File. Please note that the Keynote file is intended for presentation purposes only, and may not neccessarily give you complete information related to the project.
 
 # DISCLAIMER
 By Installing Survey Scan, you agree to not hold the Creators of Survey Scan, Joshua Foo Yong Yi and Ler Yan En responsible for any (data) loss, damage or injury caused by the installation of Survey Scan. Misuse of the Application is not warrented. The user will be held responsible for any usage of the application that results in interllectual property damage or the infringment of any laws. This Disclaimer is non-exhaustive, and Joshua Foo Yong Yi and Ler Yan En reserve the rights to include or exclude sections of this disclaimer without prior notice. 
