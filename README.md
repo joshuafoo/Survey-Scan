@@ -1,5 +1,14 @@
 # Survey Scan™
 This Application was Intended for the Computing Coursework 2020. 
+## Abstract
+Our Project, called “Survey Scan”, is an application designed to make the analysis of surveys easier and more readable. Our application accepts a .csv (Comma Separated Values) file and process it, before giving the user the file analysis, before exporting it to a Numbers document. Our Application incorporates techniques like Machine Learning (Sentimental Analysis) as well as simple statistical methods like the data’s mean, mode, etc. to analyse the data and present it in a table for simple and easy viewing. 
+## Aim of Application
+Survey Scan aims to ease the jobs of statisticians and analysts, by helping them analyse data with greater speed and efficiency. 
+## Application Functions
+Survey Scan analyses sentiments of data to help identify the respondents’ general feel of the questions or topic being analysed and has other statistical functions such as the calculation of the Standard Deviation, Mean, Mode, Median and so on. Survey Scan also automatically detects the various question types (like MCQ, Long Answer, Agree/Disagree and other questions), and presents them to you for verification to ensure maximum efficiency of the analysis. 
+## Applications in Real Life
+Survey Scan is intended to be of use to the general public which requires the quick and efficient analysis of data, be it for attendance taking, or an online test quiz tabulation. 
+
 
 # Installation
 For Proper Installation, please use Installation File and give it Sudo Rights. Run "Install Survey Scan".command by double clicking it. If multiple instances of the application appears, close one. If an error runs with "Packages not installed properly", please try reinstalling the application and its necessary packages. Should the problem persist, please approach any of the Code Authors for more information. 
