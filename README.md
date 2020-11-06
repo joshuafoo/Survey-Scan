@@ -1,5 +1,5 @@
 # Survey Scan™
-This Application was Intended for the Computing Coursework 2020. 
+This Application (built for MacOS 10.15.7) was Intended for the Computing Coursework 2020. 
 ## Abstract
 Our Project, called “Survey Scan”, is an application designed to make the analysis of surveys easier and more readable. Our application accepts a .csv (Comma Separated Values) file and process it, before giving the user the file analysis, before exporting it to a Numbers document. Our Application incorporates techniques like Machine Learning (Sentimental Analysis) as well as simple statistical methods like the data’s mean, mode, etc. to analyse the data and present it in a table for simple and easy viewing. 
 ## Aim of Application
